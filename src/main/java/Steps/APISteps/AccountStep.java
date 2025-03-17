@@ -2,7 +2,6 @@ package Steps.APISteps;
 
 import Data.Web.AccountsAndCardModel;
 import Data.API.GetPersonAccountListResponseModel;
-import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import org.testng.asserts.SoftAssert;
 
@@ -44,58 +43,7 @@ public class AccountStep {
 
 
 
-    @Step
-//    public void compareAccountInfo(List<AccountsAndCardModel> accountAndCardsListWeb,
-//                                   List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> accountListAPI) {
-//        SoftAssert softAssert = new SoftAssert();
-//        boolean assertIsTrue = true;
-//        Map<String, String> currencyMap = new HashMap<>();
-//        currencyMap.put("₾", "GEL");
-//        currencyMap.put("$", "USD");
-//        currencyMap.put("€", "EUR");
-//
-//        for (Map.Entry<String, List<GetPersonAccountListResponseModel>> apiAccount : accountListAPI) {
-//            String apiAccountNumber = apiAccount.getKey();
-//            boolean matchFound = false;
-//
-//            // Account Cards
-//            for (GetPersonAccountListResponseModel apiCardDetail : apiAccount.getValue()) {
-//                String apiCardCurrency = apiCardDetail.getCurrency();
-//                Double apiCardBalance = Double.parseDouble(apiCardDetail.getAvailableBalance());
-//
-//                // Loop through accountAndCardsListWeb
-//                for (AccountsAndCardModel webAccount : accountAndCardsListWeb) {
-//                    AccountsAndCardModel.AccountDetails accountDetails = webAccount.getAccountDetails(); // Updated to use AccountDetails
-//                    if (accountDetails == null) continue; // Handle potential null cases
-//
-//                    String webAccountNumber = accountDetails.getAccountNumber(); // Updated access
-//
-//                    for (String webCardCurrency : accountDetails.getAmountsByCurrency()) { // Updated access
-//                        String cleanedCurrency = webCardCurrency.replaceAll("[^a-zA-Z₾$€]", "");
-//                        String mappedCurrency = currencyMap.get(cleanedCurrency);
-//
-//                        if (apiAccountNumber.equals(webAccountNumber) && apiCardCurrency.equals(mappedCurrency)) {
-//                            double webAccountBalance = Double.parseDouble(webAccount.getTotalAmount().replaceAll("[^a-zA-Z0-9.]", ""));
-//                            if (Double.compare(apiCardBalance, webAccountBalance) != 0) {
-//                                softAssert.fail("Balance mismatch for account: " + apiAccountNumber);
-//                            }
-//                            matchFound = true;
-//                            break;
-//                        }
-//                    }
-//
-//                    if (matchFound) break;
-//                }
-//            }
-//
-//            if (!matchFound) {
-//                softAssert.fail("No matching account found for API Account: " + apiAccountNumber);
-//            }
-//        }
-//        softAssert.assertAll();
-//    }
-
-    public void compareAccountInfo(List<AccountsAndCardModel> accountAndCardsListWeb,
+    public void compareAccountInfo(TreeMap<String, AccountsAndCardModel> accountAndCardsMapWeb,
                                    List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> accountListAPI) {
         SoftAssert softAssert = new SoftAssert();
         Map<String, String> currencyMap = new HashMap<>();
@@ -105,55 +53,58 @@ public class AccountStep {
 
         for (Map.Entry<String, List<GetPersonAccountListResponseModel>> apiAccount : accountListAPI) {
             String apiAccountNumber = apiAccount.getKey();
-            boolean matchFound = false;
 
-            // Loop through API Account Cards for the current account number
-            for (GetPersonAccountListResponseModel apiCardDetail : apiAccount.getValue()) {
-                String apiCardCurrency = apiCardDetail.getCurrency();
-                Double apiCardBalance = Double.parseDouble(apiCardDetail.getAvailableBalance());
 
-                // Loop through accountAndCardsListWeb for the current account number
-                for (AccountsAndCardModel webAccount : accountAndCardsListWeb) {
-                    AccountsAndCardModel.AccountDetails accountDetails = webAccount.getAccountDetails();
-                    if (accountDetails == null) continue; // Handle null cases
+            AccountsAndCardModel webAccount = accountAndCardsMapWeb.get(apiAccountNumber);
 
-                    String webAccountNumber = accountDetails.getAccountNumber();
+            if (webAccount != null) {
+                List<GetPersonAccountListResponseModel> apiCardDetails = apiAccount.getValue();
+                List<String> webCurrencyAmounts = webAccount.getAmountsByCurrency();
 
-                    // Check if account numbers match
-                    if (apiAccountNumber.equals(webAccountNumber)) {
-                        for (String webCardCurrency : accountDetails.getAmountsByCurrency()) {
-                            String cleanedCurrency = webCardCurrency.replaceAll("[^a-zA-Z₾$€]", "");
-                            String mappedCurrency = currencyMap.get(cleanedCurrency);
 
-                            // Check if currencies match
-                            if (apiCardCurrency.equals(mappedCurrency)) {
-                                double webAccountBalance = Double.parseDouble(webAccount.getTotalAmount().replaceAll("[^a-zA-Z0-9.]", ""));
+                if (apiCardDetails.size() == webCurrencyAmounts.size()) {
+                    for (int i = 0; i < apiCardDetails.size(); i++) {
+                        GetPersonAccountListResponseModel apiCardDetail = apiCardDetails.get(i);
+                        String apiCardCurrency = apiCardDetail.getCurrency();
+                        Double apiCardBalance = Double.parseDouble(apiCardDetail.getAvailableBalance());
 
-                                // Compare balances
-                                if (Double.compare(apiCardBalance, webAccountBalance) != 0) {
-                                    softAssert.fail("Balance mismatch for account: " + apiAccountNumber +
-                                            ", currency: " + apiCardCurrency +
-                                            ", API balance: " + apiCardBalance +
-                                            ", Web balance: " + webAccountBalance);
-                                }
-                                matchFound = true;
-                                break;
+                        String webCurrencyAmount = webCurrencyAmounts.get(i);
+
+                        String numericPart = webCurrencyAmount.replaceAll("[^0-9.]", "");
+                        String currencySymbol = webCurrencyAmount.replaceAll("[0-9. ]", "").trim();
+                        String removeComma = currencySymbol.replaceAll(",", "");
+                        String mappedCurrency = currencyMap.get(removeComma);
+
+                        if (apiCardCurrency.equals(mappedCurrency)) {
+                            double webAmount = Double.parseDouble(numericPart);
+
+                            if (Double.compare(apiCardBalance, webAmount) != 0) {
+                                softAssert.fail("Balance mismatch for account: " + apiAccountNumber +
+                                        ", currency: " + apiCardCurrency +
+                                        ", API balance: " + apiCardBalance +
+                                        ", Web balance: " + webAmount);
                             }
+                        } else {
+                            softAssert.fail("Currency mismatch for account: " + apiAccountNumber +
+                                    ", expected currency: " + apiCardCurrency +
+                                    ", found currency: " + mappedCurrency);
                         }
                     }
-
-                    if (matchFound) break;
+                } else {
+                    softAssert.fail("Mismatched number of items for account: " + apiAccountNumber);
                 }
-            }
-
-            // If no match found for API Account, report the failure
-            if (!matchFound) {
-                softAssert.fail("No matching account found for API Account: " + apiAccountNumber);
+            } else {
+                softAssert.fail("No matching web account found for API account: " + apiAccountNumber);
             }
         }
 
-// Assert all collected failures at the end
         softAssert.assertAll();
     }
+
+
+
+
+
+
 
 }

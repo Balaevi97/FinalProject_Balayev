@@ -4,48 +4,19 @@ import Data.Web.AccountsAndCardModel;
 import Elements.GetCardDetail;
 import io.qameta.allure.Step;
 
+
 import java.util.*;
 
 
 public class GetCardDetailSteps extends GetCardDetail {
 
-//public List<AccountsAndCardModel> getAllCardsInfo() {
-//    List<AccountsAndCardModel> cards = new ArrayList<>();
-//    int i = 0;
-//
-//    while (i < getAllElement.size()) {
-//        AccountsAndCardModel card = new AccountsAndCardModel();
-//
-//        if (i < getAllElement.size()) {
-//            card.setCardName(getAllElement.get(i++).getText());
-//        }
-//
-//        if (i < getAllElement.size()) {
-//            card.setTotalAmount(getAllElement.get(i++).getText());
-//        }
-//
-//        while (i < getAllElement.size() && getAllElement.get(i).getText().matches(".*[0-9].*")) {
-//            card.getAmountsByCurrency().add(getAllElement.get(i++).getText());
-//        }
-//
-//        while (i < getAllElement.size() && !getAllElement.get(i).getText().matches(".*[0-9].*")) {
-//            card.getCardFunctionality().add(getAllElement.get(i++).getText());
-//        }
-//        card.setAccountNumber(accountNumber.getText());
-//        cards.add(card);
-//    }
-//    return cards;
-//}
-
-
-
-    public List<AccountsAndCardModel> getAllCardsInfo() {
-        List<AccountsAndCardModel> cards = new ArrayList<>();
+    @Step
+    public List<Map.Entry<String, List<AccountsAndCardModel>>> getAllCardsInfo() {
+        Map<String, List<AccountsAndCardModel>> groupedCards = new HashMap<>();
         int i = 0;
 
         while (i < getAllElement.size()) {
             AccountsAndCardModel card = new AccountsAndCardModel();
-            AccountsAndCardModel.AccountDetails accountDetails = new AccountsAndCardModel.AccountDetails();
 
             if (i < getAllElement.size()) {
                 card.setCardName(getAllElement.get(i++).getText());
@@ -55,27 +26,32 @@ public class GetCardDetailSteps extends GetCardDetail {
                 card.setTotalAmount(getAllElement.get(i++).getText());
             }
 
-            // Assign account number
-            accountDetails.setAccountNumber(accountNumber.getText());
+            String accountNumberText = accountNumber.getText();
+            card.setAccountNumber(accountNumberText);
 
-            // Process amountsByCurrency under accountNumber
+            List<String> amountsByCurrency = new ArrayList<>();
             while (i < getAllElement.size() && getAllElement.get(i).getText().matches(".*[0-9].*")) {
-                accountDetails.getAmountsByCurrency().add(getAllElement.get(i++).getText());
+                amountsByCurrency.add(getAllElement.get(i++).getText());
             }
+            card.setAmountsByCurrency(amountsByCurrency);
 
-            // Assign the structured accountDetails to the card
-            card.setAccountDetails(accountDetails);
-
-            // Process cardFunctionality separately
+            List<String> cardFunctionalities = new ArrayList<>();
             while (i < getAllElement.size() && !getAllElement.get(i).getText().matches(".*[0-9].*")) {
-                card.getCardFunctionality().add(getAllElement.get(i++).getText());
+                cardFunctionalities.add(getAllElement.get(i++).getText());
             }
+            card.setCardFunctionality(cardFunctionalities);
 
-            cards.add(card);
+            if (!groupedCards.containsKey(accountNumberText)) {
+                groupedCards.put(accountNumberText, new ArrayList<>());
+            }
+            groupedCards.get(accountNumberText).add(card);
         }
-        return cards;
-    }
 
+        List<Map.Entry<String, List<AccountsAndCardModel>>> result = new ArrayList<>(groupedCards.entrySet());
+        result.sort(Comparator.comparing(Map.Entry::getKey));
+
+        return result;
+    }
 
     @Step
     ///  მიმდინარე ბარათის გვერდის წამოღება
@@ -84,14 +60,14 @@ public class GetCardDetailSteps extends GetCardDetail {
         String[] parts = text.split("/");
 
         return Integer.parseInt(parts[0]);
-        
+
     }
     @Step
     ///  ბარათების ჯამური გვერდის წამოღება
     public int getTotalPagesCount () {
         String text = pages.getText().trim();
         String[] parts = text.split("/");
-        
+
         return Integer.parseInt(parts[1]);
     }
 
@@ -103,54 +79,61 @@ public class GetCardDetailSteps extends GetCardDetail {
 
 
     /// მეთოდების გამოძახება გვერდების რაოდენობის მიხედვით
-    public List<AccountsAndCardModel> executeMethods() {
+    public TreeMap<String, AccountsAndCardModel> executeMethods() {
         List<AccountsAndCardModel> allCardsInfo = new ArrayList<>();
 
         for (int i = 1; i <= getTotalPagesCount(); i++) {
             System.out.println("\n Current Page [" + getCurrentPage() + "]");
 
-            List<AccountsAndCardModel> allCards = getAllCardsInfo();
+            // Get all cards grouped by account number
+            List<Map.Entry<String, List<AccountsAndCardModel>>> allCardsGrouped = getAllCardsInfo();
 
-            for (AccountsAndCardModel currency : allCards) {
-                if (currency.getCardName() == null || currency.getTotalAmount() == null || currency.getCardName().isEmpty()) {
-                    continue;
-                }
+            for (Map.Entry<String, List<AccountsAndCardModel>> entry : allCardsGrouped) {
+                String accountNumber = entry.getKey();
+                List<AccountsAndCardModel> cards = entry.getValue();
 
-                System.out.println("Currency Details: ");
-                System.out.println("Card Name: " + currency.getCardName());
-                System.out.println("Total Amount: " + currency.getTotalAmount());
+                for (AccountsAndCardModel currency : cards) {
+                    if (currency.getCardName() == null || currency.getTotalAmount() == null || currency.getCardName().isEmpty()) {
+                        continue;
+                    }
 
-                // Get account details
-                AccountsAndCardModel.AccountDetails accountDetails = currency.getAccountDetails();
-                if (accountDetails != null) {
-                    System.out.println("Account Number: " + accountDetails.getAccountNumber());
+                    System.out.println("Currency Details: ");
+                    System.out.println("Card Name: " + currency.getCardName());
+                    System.out.println("Total Amount: " + currency.getTotalAmount());
 
-                    for (String amount : accountDetails.getAmountsByCurrency()) {
+                    // Print Account Number directly from the model
+                    System.out.println("Account Number: " + currency.getAccountNumber());
+
+                    // Print AmountsByCurrency details
+                    for (String amount : currency.getAmountsByCurrency()) {
                         if (amount != null && !amount.isEmpty()) {
                             char currencySymbol = amount.charAt(amount.length() - 1);
                             System.out.println("Amount in " + currencySymbol + ": " + amount);
                         }
                     }
-                }
 
-                // Print Card Functionality details
-                for (String function : currency.getCardFunctionality()) {
-                    if (function != null && !function.isEmpty()) {
-                        System.out.println("ბარათის ფუნქცია: " + function);
+                    // Print Card Functionality details
+                    for (String function : currency.getCardFunctionality()) {
+                        if (function != null && !function.isEmpty()) {
+                            System.out.println("ბარათის ფუნქცია: " + function);
+                        }
                     }
-                }
 
-                allCardsInfo.add(currency);
+                    allCardsInfo.add(currency);
+                }
             }
 
             next();
         }
 
-        // Sorting based on the updated structure
-        allCardsInfo.sort(Comparator.comparing(card -> card.getAccountDetails().getAccountNumber()));
+        TreeMap<String, AccountsAndCardModel> accountMap = new TreeMap<>();
 
-        return allCardsInfo;
+        for (AccountsAndCardModel model : allCardsInfo) {
+            accountMap.put(model.getAccountNumber(), model);
+        }
+        return accountMap;
     }
+
 
 
 

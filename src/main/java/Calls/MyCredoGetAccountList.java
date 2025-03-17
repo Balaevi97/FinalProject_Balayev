@@ -1,7 +1,6 @@
 package Calls;
 
-import io.restassured.response.Response;
-import org.json.JSONObject;
+import io.restassured.response.Response;;
 
 import static Steps.FrontSteps.LogInSteps.token;
 import static Utils.APIRequestSpec.getRequestSpec;
