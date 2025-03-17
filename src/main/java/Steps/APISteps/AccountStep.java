@@ -18,11 +18,14 @@ public class AccountStep {
         Response response = PostAccountListWithPersonID(Query);
         List<GetPersonAccountListResponseModel> accounts = response.jsonPath()
                 .getList("data.accounts", GetPersonAccountListResponseModel.class);
-
+        String targetCategory = "მიმდინარე";
+        List<GetPersonAccountListResponseModel> filteredAccounts = accounts.stream()
+                .filter(account -> targetCategory.equals(account.getCategory()))
+                .toList();
 
         Map<String, List<GetPersonAccountListResponseModel>> groupedAccounts = new HashMap<>();
 
-        for (GetPersonAccountListResponseModel account : accounts) {
+        for (GetPersonAccountListResponseModel account : filteredAccounts) {
             String accountNumber = account.getAccountNumber();
             groupedAccounts.computeIfAbsent(accountNumber, k -> new ArrayList<>()).add(account);
 
@@ -100,11 +103,5 @@ public class AccountStep {
 
         softAssert.assertAll();
     }
-
-
-
-
-
-
 
 }

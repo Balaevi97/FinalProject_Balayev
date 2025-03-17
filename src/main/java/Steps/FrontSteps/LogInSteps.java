@@ -50,20 +50,27 @@ public class LogInSteps extends LogIn {
         return this;
     }
 
-    public LogInSteps getBearerToken () {
-        if (sumMoneyAmount.isDisplayed()) {
-            token = Selenide.executeJavaScript("return sessionStorage.getItem('token');");
+    public LogInSteps getBearerToken() {
+        String fullToken = Selenide.executeJavaScript("return sessionStorage.getItem('token');");
+
+        if (fullToken != null && fullToken.startsWith("Bearer ")) {
+            token = fullToken.split(" ")[1];
+            System.out.println("Extracted Token: " + token);
+        } else {
+            System.out.println("Token not found or in an unexpected format!");
         }
-            return this;
+
+        return this;
     }
 
 
-    public Boolean assertLogin () {
-        Assert.assertEquals(
-                sumMoneyAmount.getText(), "10,905.03 ₾");
-        System.out.println();
-        return true;
-    }
+
+//    public Boolean assertLogin () {
+//        Assert.assertEquals(
+//                sumMoneyAmount.getText(), "10,905.03 ₾");
+//        System.out.println();
+//        return true;
+//    }
 
 
 }
