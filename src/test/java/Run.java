@@ -38,7 +38,15 @@ public class Run {
 
     @Test (priority = 3)
     public void getCardInfo () {
-        accountStep.compareAccountInfo(getCardDetailSteps.executeMethods(), accountStep.getAccountList());
+        accountStep.compareAccountInfo(getCardDetailSteps.collectCardInfo(), accountStep.getAccountList(), accountStep.getcardList());
+       // getCardDetailSteps.collectCardInfo();
+        getCardDetailSteps.operationOnCard("1234");
+
+    }
+
+    @Test (priority = 4)
+    public void Test () {
+        accountStep.getcardList();
     }
 
 

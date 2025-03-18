@@ -1,24 +1,28 @@
 package Steps.APISteps;
 
+import Data.API.GetPersonCardList;
 import Data.Web.AccountsAndCardModel;
 import Data.API.GetPersonAccountListResponseModel;
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
+import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static Calls.MyCredoGetAccountList.PostAccountListWithPersonID;
-import static Utils.URL.Query;
+import static Utils.URL.*;
 
 public class AccountStep {
 
-
+    @Step
     public List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> getAccountList() {
 
-        Response response = PostAccountListWithPersonID(Query);
+        Response response = PostAccountListWithPersonID(accountQuery);
         List<GetPersonAccountListResponseModel> accounts = response.jsonPath()
                 .getList("data.accounts", GetPersonAccountListResponseModel.class);
-        String targetCategory = "მიმდინარე";
+        String targetCategory = accountType;
         List<GetPersonAccountListResponseModel> filteredAccounts = accounts.stream()
                 .filter(account -> targetCategory.equals(account.getCategory()))
                 .toList();
@@ -44,10 +48,28 @@ public class AccountStep {
         return result;
     }
 
+    public List<GetPersonCardList> getcardList() {
+
+        Response response = PostAccountListWithPersonID(cardQuery);
+        List<GetPersonCardList> cards = response.jsonPath()
+                .getList("data.cards", GetPersonCardList.class);
+
+        List<GetPersonCardList> filteredCards = cards.stream()
+                .collect(Collectors.toMap(
+                        GetPersonCardList::getAccountNumber, card -> card,
+                        (existing, replacement) -> existing))
+                .values()
+                .stream()
+                .toList();
+
+        return filteredCards;
+    }
 
 
+    @Step
     public void compareAccountInfo(TreeMap<String, AccountsAndCardModel> accountAndCardsMapWeb,
-                                   List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> accountListAPI) {
+                                   List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> accountListAPI,
+                                   List<GetPersonCardList> cardListAPI) {
         SoftAssert softAssert = new SoftAssert();
         Map<String, String> currencyMap = new HashMap<>();
         currencyMap.put("₾", "GEL");
@@ -57,17 +79,31 @@ public class AccountStep {
         for (Map.Entry<String, List<GetPersonAccountListResponseModel>> apiAccount : accountListAPI) {
             String apiAccountNumber = apiAccount.getKey();
 
-
             AccountsAndCardModel webAccount = accountAndCardsMapWeb.get(apiAccountNumber);
+            Map<String, AccountsAndCardModel> filteredAccounts = accountAndCardsMapWeb.entrySet().stream()
+                    .filter(entry -> !"მიმდინარე".equals(entry.getValue().getCardName()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
             if (webAccount != null) {
-                List<GetPersonAccountListResponseModel> apiCardDetails = apiAccount.getValue();
+
+                if (!"მიმდინარე".equals(webAccount.getCardName())) {
+                    for (GetPersonCardList apiCard : cardListAPI) {
+                        String apiCardAccountNumber = apiCard.getAccountNumber();
+                        String apiCardNickName = apiCard.getCardNickName();
+
+                        if (apiCardAccountNumber.equals(apiAccountNumber)) {
+                            String webCardNickName = webAccount.getCardName();
+                            Assert.assertEquals(webCardNickName, apiCardNickName, "Card Name Does Not Match for Account Number: " + apiAccountNumber);
+                        }
+                    }
+                }
+
+                List<GetPersonAccountListResponseModel> apiAccountDetails = apiAccount.getValue();
                 List<String> webCurrencyAmounts = webAccount.getAmountsByCurrency();
 
-
-                if (apiCardDetails.size() == webCurrencyAmounts.size()) {
-                    for (int i = 0; i < apiCardDetails.size(); i++) {
-                        GetPersonAccountListResponseModel apiCardDetail = apiCardDetails.get(i);
+                if (apiAccountDetails.size() == webCurrencyAmounts.size()) {
+                    for (int i = 0; i < apiAccountDetails.size(); i++) {
+                        GetPersonAccountListResponseModel apiCardDetail = apiAccountDetails.get(i);
                         String apiCardCurrency = apiCardDetail.getCurrency();
                         Double apiCardBalance = Double.parseDouble(apiCardDetail.getAvailableBalance());
 
@@ -80,13 +116,7 @@ public class AccountStep {
 
                         if (apiCardCurrency.equals(mappedCurrency)) {
                             double webAmount = Double.parseDouble(numericPart);
-
-                            if (Double.compare(apiCardBalance, webAmount) != 0) {
-                                softAssert.fail("Balance mismatch for account: " + apiAccountNumber +
-                                        ", currency: " + apiCardCurrency +
-                                        ", API balance: " + apiCardBalance +
-                                        ", Web balance: " + webAmount);
-                            }
+                            Assert.assertEquals(apiCardBalance, webAmount);
                         } else {
                             softAssert.fail("Currency mismatch for account: " + apiAccountNumber +
                                     ", expected currency: " + apiCardCurrency +
@@ -103,5 +133,6 @@ public class AccountStep {
 
         softAssert.assertAll();
     }
+
 
 }

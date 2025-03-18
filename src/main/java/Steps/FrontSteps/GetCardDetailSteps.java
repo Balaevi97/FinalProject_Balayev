@@ -2,10 +2,21 @@ package Steps.FrontSteps;
 
 import Data.Web.AccountsAndCardModel;
 import Elements.GetCardDetail;
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.ex.ElementIsNotClickableError;
 import io.qameta.allure.Step;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
 
+import java.time.Duration;
 import java.util.*;
+
+import static com.codeborne.selenide.Condition.clickable;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.switchTo;
 
 
 public class GetCardDetailSteps extends GetCardDetail {
@@ -77,9 +88,13 @@ public class GetCardDetailSteps extends GetCardDetail {
         nextProduct.click();
     }
 
+    public void previous () {
+        previousProduct.click();
+    }
+
 
     /// მეთოდების გამოძახება გვერდების რაოდენობის მიხედვით
-    public TreeMap<String, AccountsAndCardModel> executeMethods() {
+    public TreeMap<String, AccountsAndCardModel> collectCardInfo () {
         List<AccountsAndCardModel> allCardsInfo = new ArrayList<>();
 
         for (int i = 1; i <= getTotalPagesCount(); i++) {
@@ -134,8 +149,142 @@ public class GetCardDetailSteps extends GetCardDetail {
         return accountMap;
     }
 
+/// /////////////////////////////////
+    /// ბარათის დაბლოკვა
+
+    public Boolean cardBlockButtonAssert () {
+        Assert.assertTrue(cardBlock.shouldBe(visible, Duration.ofSeconds(15)).isDisplayed());
+        return true;
+    }
+
+    public GetCardDetailSteps cardBlockStep () {
+        cardBlock.click();
+        return this;
+    }
+
+    public GetCardDetailSteps closeWindowByButtonStep () {
+        closeWindowByButton.click();
+        return this;
+    }
 
 
+    public GetCardDetailSteps closeWindowByXStep () {
+        closeWindowByX.click();
+        return this;
+    }
+
+    public GetCardDetailSteps cardBlockApproveStep () {
+        cardBlockApprove.click();
+        return this;
+    }
+
+    public boolean blockedCardAssert () {
+        Assert.assertTrue(cardUnblock.shouldBe(visible, Duration.ofSeconds(15)).isDisplayed());
+        return true;
+    }
+
+    public GetCardDetailSteps cardUnblockStep () {
+        cardUnblock.click();
+        return this;
+    }
+
+    public GetCardDetailSteps cardUnblockApproveStep () {
+        cardUnblockApprove.click();
+        return this;
+    }
+
+
+    ///  პინის აღდგენა
+
+    public boolean pinResetButtonAssert () {
+        Assert.assertTrue(pinReset.isDisplayed());
+        return true;
+    }
+
+    public GetCardDetailSteps pinResetStep () {
+        pinReset.click();
+        return this;
+    }
+
+    public GetCardDetailSteps closePinResetStep () {
+        closePinReset.click();
+        return this;
+    }
+
+    public GetCardDetailSteps pinResetApproveStep () {
+        pinResetApprove.click();
+        return this;
+    }
+
+    public GetCardDetailSteps setOTP (String otp) {
+        OTP.shouldBe(clickable, Duration.ofSeconds(5)).click();
+        OTP.setValue(otp);
+        return this;
+    }
+
+    public GetCardDetailSteps clickApprove () {
+        approve.shouldBe(clickable, Duration.ofSeconds(15)).click();
+        return this;
+    }
+
+    public String getResetPinMessage () {
+        return resetPinMessage.shouldBe(visible, Duration.ofSeconds(10)).getText();
+
+    }
+
+
+    public GetCardDetailSteps operationOnCard (String otp) {
+        WebDriverWait wait = new WebDriverWait(Selenide.webdriver().object(), Duration.ofSeconds(10));
+    for (int i = getTotalPagesCount(); i >= 1; i--) {
+        try {
+
+            try {
+                if (pinReset.isDisplayed()) {
+                    pinResetStep()
+                            .closePinResetStep()
+                            .pinResetStep()
+                            .closeWindowByXStep()
+                            .pinResetStep()
+                            .pinResetApproveStep()
+                            .setOTP(otp)
+                            .clickApprove();
+                    System.out.println(getResetPinMessage());
+                    Assert.assertEquals(getResetPinMessage(), "ახალი პინ კოდი sms-ით გამოგიგზავნეთ");
+                }
+            }catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
+
+            try {
+                if (cardBlock.isDisplayed()) {
+                    cardBlockStep()
+                            .closeWindowByButtonStep()
+                            .cardBlockStep()
+                            .closeWindowByXStep()
+                            .cardBlockStep()
+                            .cardBlockApproveStep();
+                    Assert.assertTrue(blockedCardAssert());
+
+                    cardUnblockStep()
+                            .cardUnblockApproveStep();
+                    Assert.assertTrue(cardBlockButtonAssert());
+                }
+            }catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
+
+            previous();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        }
+
+
+
+        return this;
+    }
 
 }
 
