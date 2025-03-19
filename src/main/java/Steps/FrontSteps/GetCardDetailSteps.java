@@ -2,12 +2,8 @@ package Steps.FrontSteps;
 
 import Data.Web.AccountsAndCardModel;
 import Elements.GetCardDetail;
-import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.ex.ElementIsNotClickableError;
+
 import io.qameta.allure.Step;
-import org.openqa.selenium.Alert;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 
@@ -16,7 +12,6 @@ import java.util.*;
 
 import static com.codeborne.selenide.Condition.clickable;
 import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selenide.switchTo;
 
 
 public class GetCardDetailSteps extends GetCardDetail {
@@ -100,11 +95,9 @@ public class GetCardDetailSteps extends GetCardDetail {
         for (int i = 1; i <= getTotalPagesCount(); i++) {
             System.out.println("\n Current Page [" + getCurrentPage() + "]");
 
-            // Get all cards grouped by account number
             List<Map.Entry<String, List<AccountsAndCardModel>>> allCardsGrouped = getAllCardsInfo();
 
             for (Map.Entry<String, List<AccountsAndCardModel>> entry : allCardsGrouped) {
-                String accountNumber = entry.getKey();
                 List<AccountsAndCardModel> cards = entry.getValue();
 
                 for (AccountsAndCardModel currency : cards) {
@@ -116,10 +109,9 @@ public class GetCardDetailSteps extends GetCardDetail {
                     System.out.println("Card Name: " + currency.getCardName());
                     System.out.println("Total Amount: " + currency.getTotalAmount());
 
-                    // Print Account Number directly from the model
                     System.out.println("Account Number: " + currency.getAccountNumber());
 
-                    // Print AmountsByCurrency details
+
                     for (String amount : currency.getAmountsByCurrency()) {
                         if (amount != null && !amount.isEmpty()) {
                             char currencySymbol = amount.charAt(amount.length() - 1);
@@ -127,7 +119,6 @@ public class GetCardDetailSteps extends GetCardDetail {
                         }
                     }
 
-                    // Print Card Functionality details
                     for (String function : currency.getCardFunctionality()) {
                         if (function != null && !function.isEmpty()) {
                             System.out.println("ბარათის ფუნქცია: " + function);
@@ -196,11 +187,6 @@ public class GetCardDetailSteps extends GetCardDetail {
 
     ///  პინის აღდგენა
 
-    public boolean pinResetButtonAssert () {
-        Assert.assertTrue(pinReset.isDisplayed());
-        return true;
-    }
-
     public GetCardDetailSteps pinResetStep () {
         pinReset.click();
         return this;
@@ -234,7 +220,6 @@ public class GetCardDetailSteps extends GetCardDetail {
 
 
     public GetCardDetailSteps operationOnCard (String otp) {
-        WebDriverWait wait = new WebDriverWait(Selenide.webdriver().object(), Duration.ofSeconds(10));
     for (int i = getTotalPagesCount(); i >= 1; i--) {
         try {
 
@@ -274,17 +259,17 @@ public class GetCardDetailSteps extends GetCardDetail {
                 System.out.println(e.getMessage());
             }
 
-
             previous();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         }
 
-
-
         return this;
     }
+
+
+
 
 }
 

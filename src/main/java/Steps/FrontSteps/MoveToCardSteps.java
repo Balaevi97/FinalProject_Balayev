@@ -36,14 +36,6 @@ public class MoveToCardSteps extends MoveToCard {
         Assert.assertTrue(assertPage.shouldBe(visible, Duration.ofSeconds(5)).getText().contains("ანგარიშის დეტალები"));
         return true;
     }
-    public void checkAssert () {
-        if (assertPage()) {
-            System.out.println("Test Passed");
-        } else {
-            System.out.println("Test Failed");
-        }
-        System.out.println();
-    }
 
 
 }

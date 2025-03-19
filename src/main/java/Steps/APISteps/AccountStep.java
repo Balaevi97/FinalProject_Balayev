@@ -43,11 +43,10 @@ public class AccountStep {
 
         result.sort(Comparator.comparing(Map.Entry::getKey));
 
-        System.out.println(result);
-
         return result;
     }
 
+    @Step
     public List<GetPersonCardList> getcardList() {
 
         Response response = PostAccountListWithPersonID(cardQuery);

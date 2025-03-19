@@ -1,4 +1,5 @@
 
+import Setup.MoneyTransferSteps;
 import Steps.APISteps.AccountStep;
 import Steps.FrontSteps.GetCardDetailSteps;
 import Steps.FrontSteps.LogInSteps;
@@ -12,6 +13,7 @@ public class Run {
     LogInSteps logInSteps = new LogInSteps();
     MoveToCardSteps moveToCardSteps = new MoveToCardSteps();
     GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
+    MoneyTransferSteps moneyTransfer = new MoneyTransferSteps();
     AccountStep accountStep = new AccountStep();
     @Test (priority = 1)
     public void LoginTest () {
@@ -38,9 +40,12 @@ public class Run {
 
     @Test (priority = 3)
     public void getCardInfo () {
-        accountStep.compareAccountInfo(getCardDetailSteps.collectCardInfo(), accountStep.getAccountList(), accountStep.getcardList());
-       // getCardDetailSteps.collectCardInfo();
-        getCardDetailSteps.operationOnCard("1234");
+    //    moneyTransfer.maxAmountPAge();
+        moneyTransfer.getAccountBalance("GE03CD0360000036901829", "GEL");
+        moneyTransfer.assertAccountBalance();
+//        accountStep.compareAccountInfo(getCardDetailSteps.collectCardInfo(), accountStep.getAccountList(), accountStep.getcardList());
+//       // getCardDetailSteps.collectCardInfo();
+//        getCardDetailSteps.operationOnCard("1234");
 
     }
 
