@@ -170,9 +170,8 @@ public class GetCardDetailSteps extends GetCardDetail {
         return this;
     }
 
-    public GetCardDetailSteps cardBlockApproveStep () {
+    public void cardBlockApproveStep () {
         cardBlockApprove.click();
-        return this;
     }
 
     public boolean blockedCardAssert () {
@@ -185,9 +184,8 @@ public class GetCardDetailSteps extends GetCardDetail {
         return this;
     }
 
-    public GetCardDetailSteps cardUnblockApproveStep () {
+    public void cardUnblockApproveStep () {
         cardUnblockApprove.click();
-        return this;
     }
 
 
@@ -214,9 +212,8 @@ public class GetCardDetailSteps extends GetCardDetail {
         return this;
     }
 
-    public GetCardDetailSteps clickApprove () {
+    public void clickApprove () {
         approve.shouldBe(clickable, Duration.ofSeconds(15)).click();
-        return this;
     }
 
     public String getResetPinMessage () {
@@ -256,13 +253,13 @@ public class GetCardDetailSteps extends GetCardDetail {
 
                     Assert.assertTrue(cardBlockButtonAssert());
 
-                    break; // Stop loop as condition is met
+                    break;
                 } else {
-                    next(); // Move to the next page if condition is not met
+                    next();
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace(); // Print full stack trace for debugging
+            e.printStackTrace();
         }
 
         return this;

@@ -65,11 +65,10 @@ public class LogInSteps extends LogIn {
 
 
 
-    public Boolean assertLogin () {
+    public void assertLogin () {
         Assert.assertEquals(
                 sumMoneyAmount.getText(), "10,905.03 ₾");
         System.out.println();
-        return true;
     }
 
 

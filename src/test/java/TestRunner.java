@@ -46,7 +46,7 @@ public class TestRunner {
 
     @Test (priority = 4)
     public void moneyTransfer () {
-        moneyTransfer.maxAmountPAge();
+        moneyTransfer.getMaxAmountPAge();
         getCardDetailSteps.operationOnCard(OTP);
         moneyTransfer.goToMaxAmountPage()
                 .moveToTransfer ()

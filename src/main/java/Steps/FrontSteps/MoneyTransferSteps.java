@@ -37,7 +37,7 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
 
     AccountStep accountStep = new AccountStep();
 
-    public int maxAmountPAge() {
+    public int getMaxAmountPAge() {
 
         for (int i = getCardDetailSteps.getTotalPagesCount(); i >= 1 ; i--) {
             System.out.println("\n Current Page [" + getCardDetailSteps.getCurrentPage() + "]");
@@ -111,7 +111,7 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
         return card_AccountList.texts(); // აქ ვაბრუნებთ ანგარიშების სიას
     }
 
-    public MoneyTransferSteps choseAccount() {
+    public void choseAccount() {
         List<String> accountList = getCard_AccountList();
         String selectedCard = getSelectedCardNumber();
 
@@ -123,10 +123,9 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
             }
         }
 
-        return this;
     }
 
-    public MoneyTransferSteps chooseCurrency() {
+    public void chooseCurrency() {
 
         SelenideElement currencyToSelect = selectedAccount.filter(Condition.text(receiverAccountForTransfer))
                 .first()
@@ -135,7 +134,6 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
 
         currencyToSelect.click();
 
-        return this;
     }
 
     public Double getReceiverAccountAmount () {

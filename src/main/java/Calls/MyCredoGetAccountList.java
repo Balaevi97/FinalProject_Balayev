@@ -1,6 +1,6 @@
 package Calls;
 
-import io.restassured.response.Response;;
+import io.restassured.response.Response;
 
 import static Steps.FrontSteps.LogInSteps.token;
 import static Utils.APIRequestSpec.getRequestSpec;
@@ -12,7 +12,6 @@ public class MyCredoGetAccountList {
 
 
     public static Response  GetAccountListWithPersonID () {
-        String URL;
 
         Response response = given()
                 .spec(getRequestSpec(myCredoAccountList, token))
