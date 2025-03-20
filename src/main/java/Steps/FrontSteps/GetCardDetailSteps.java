@@ -1,6 +1,6 @@
 package Steps.FrontSteps;
 
-import Data.Web.AccountsAndCardModel;
+import Data.Web.GetAccountsAndCardModel;
 import Elements.GetCardDetail;
 
 import io.qameta.allure.Step;
@@ -17,12 +17,12 @@ import static com.codeborne.selenide.Condition.visible;
 public class GetCardDetailSteps extends GetCardDetail {
 
     @Step
-    public List<Map.Entry<String, List<AccountsAndCardModel>>> getAllCardsInfo() {
-        Map<String, List<AccountsAndCardModel>> groupedCards = new HashMap<>();
+    public List<Map.Entry<String, List<GetAccountsAndCardModel>>> getAllCardsInfo() {
+        Map<String, List<GetAccountsAndCardModel>> groupedCards = new HashMap<>();
         int i = 0;
 
         while (i < getAllElement.size()) {
-            AccountsAndCardModel card = new AccountsAndCardModel();
+            GetAccountsAndCardModel card = new GetAccountsAndCardModel();
 
             if (i < getAllElement.size()) {
                 card.setCardName(getAllElement.get(i++).getText());
@@ -41,11 +41,11 @@ public class GetCardDetailSteps extends GetCardDetail {
             }
             card.setAmountsByCurrency(amountsByCurrency);
 
-            List<String> cardFunctionalities = new ArrayList<>();
-            while (i < getAllElement.size() && !getAllElement.get(i).getText().matches(".*[0-9].*")) {
-                cardFunctionalities.add(getAllElement.get(i++).getText());
-            }
-            card.setCardFunctionality(cardFunctionalities);
+//            List<String> cardFunctionalities = new ArrayList<>();
+//            while (i < getAllElement.size() && !getAllElement.get(i).getText().matches(".*[0-9].*")) {
+//                cardFunctionalities.add(getAllElement.get(i++).getText());
+//            }
+//            card.setCardFunctionality(cardFunctionalities);
 
             if (!groupedCards.containsKey(accountNumberText)) {
                 groupedCards.put(accountNumberText, new ArrayList<>());
@@ -53,7 +53,7 @@ public class GetCardDetailSteps extends GetCardDetail {
             groupedCards.get(accountNumberText).add(card);
         }
 
-        List<Map.Entry<String, List<AccountsAndCardModel>>> result = new ArrayList<>(groupedCards.entrySet());
+        List<Map.Entry<String, List<GetAccountsAndCardModel>>> result = new ArrayList<>(groupedCards.entrySet());
         result.sort(Comparator.comparing(Map.Entry::getKey));
 
         return result;
@@ -89,41 +89,47 @@ public class GetCardDetailSteps extends GetCardDetail {
 
 
     /// მეთოდების გამოძახება გვერდების რაოდენობის მიხედვით
-    public TreeMap<String, AccountsAndCardModel> collectCardInfo () {
-        List<AccountsAndCardModel> allCardsInfo = new ArrayList<>();
+    public TreeMap<String, GetAccountsAndCardModel> collectCardInfo () {
+        List<GetAccountsAndCardModel> allCardsInfo = new ArrayList<>();
 
         for (int i = 1; i <= getTotalPagesCount(); i++) {
-            System.out.println("\n Current Page [" + getCurrentPage() + "]");
+           // System.out.println("\n Current Page [" + getCurrentPage() + "]");
+            getCurrentPage();
+            List<Map.Entry<String, List<GetAccountsAndCardModel>>> allCardsGrouped = getAllCardsInfo();
 
-            List<Map.Entry<String, List<AccountsAndCardModel>>> allCardsGrouped = getAllCardsInfo();
+            for (Map.Entry<String, List<GetAccountsAndCardModel>> entry : allCardsGrouped) {
+                List<GetAccountsAndCardModel> cards = entry.getValue();
 
-            for (Map.Entry<String, List<AccountsAndCardModel>> entry : allCardsGrouped) {
-                List<AccountsAndCardModel> cards = entry.getValue();
-
-                for (AccountsAndCardModel currency : cards) {
+                for (GetAccountsAndCardModel currency : cards) {
                     if (currency.getCardName() == null || currency.getTotalAmount() == null || currency.getCardName().isEmpty()) {
                         continue;
                     }
+//                    String cardName = currency.getCardName();
+//                    String totalAmount = currency.getTotalAmount();
+//                    String accountNumber = currency.getAccountNumber();
 
-                    System.out.println("Currency Details: ");
-                    System.out.println("Card Name: " + currency.getCardName());
-                    System.out.println("Total Amount: " + currency.getTotalAmount());
-
-                    System.out.println("Account Number: " + currency.getAccountNumber());
+                     currency.getCardName();
+                    currency.getTotalAmount();
+                    currency.getAccountNumber();
+                  //  System.out.println("Currency Details: ");
+//                    System.out.println("Card Name: " + currency.getCardName());
+//                    System.out.println("Total Amount: " + currency.getTotalAmount());
+//
+//                    System.out.println("Account Number: " + currency.getAccountNumber());
 
 
                     for (String amount : currency.getAmountsByCurrency()) {
                         if (amount != null && !amount.isEmpty()) {
                             char currencySymbol = amount.charAt(amount.length() - 1);
-                            System.out.println("Amount in " + currencySymbol + ": " + amount);
+                           // System.out.println("Amount in " + currencySymbol + ": " + amount);
                         }
                     }
 
-                    for (String function : currency.getCardFunctionality()) {
-                        if (function != null && !function.isEmpty()) {
-                            System.out.println("ბარათის ფუნქცია: " + function);
-                        }
-                    }
+//                    for (String function : currency.getCardFunctionality()) {
+//                        if (function != null && !function.isEmpty()) {
+//                            System.out.println("ბარათის ფუნქცია: " + function);
+//                        }
+//                    }
 
                     allCardsInfo.add(currency);
                 }
@@ -132,9 +138,9 @@ public class GetCardDetailSteps extends GetCardDetail {
             next();
         }
 
-        TreeMap<String, AccountsAndCardModel> accountMap = new TreeMap<>();
+        TreeMap<String, GetAccountsAndCardModel> accountMap = new TreeMap<>();
 
-        for (AccountsAndCardModel model : allCardsInfo) {
+        for (GetAccountsAndCardModel model : allCardsInfo) {
             accountMap.put(model.getAccountNumber(), model);
         }
         return accountMap;
@@ -220,11 +226,10 @@ public class GetCardDetailSteps extends GetCardDetail {
 
 
     public GetCardDetailSteps operationOnCard (String otp) {
-    for (int i = getTotalPagesCount(); i >= 1; i--) {
         try {
-
-            try {
-                if (pinReset.isDisplayed()) {
+            for (int i = 1; i <= getTotalPagesCount(); i++) {
+                if (pinReset.isDisplayed() && cardBlock.isDisplayed()) {
+                    // Execute necessary steps
                     pinResetStep()
                             .closePinResetStep()
                             .pinResetStep()
@@ -233,36 +238,31 @@ public class GetCardDetailSteps extends GetCardDetail {
                             .pinResetApproveStep()
                             .setOTP(otp)
                             .clickApprove();
+
                     System.out.println(getResetPinMessage());
                     Assert.assertEquals(getResetPinMessage(), "ახალი პინ კოდი sms-ით გამოგიგზავნეთ");
-                }
-            }catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
 
-
-            try {
-                if (cardBlock.isDisplayed()) {
                     cardBlockStep()
                             .closeWindowByButtonStep()
                             .cardBlockStep()
                             .closeWindowByXStep()
                             .cardBlockStep()
                             .cardBlockApproveStep();
+
                     Assert.assertTrue(blockedCardAssert());
 
                     cardUnblockStep()
                             .cardUnblockApproveStep();
-                    Assert.assertTrue(cardBlockButtonAssert());
-                }
-            }catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
 
-            previous();
+                    Assert.assertTrue(cardBlockButtonAssert());
+
+                    break; // Stop loop as condition is met
+                } else {
+                    next(); // Move to the next page if condition is not met
+                }
+            }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+            e.printStackTrace(); // Print full stack trace for debugging
         }
 
         return this;

@@ -11,7 +11,7 @@ public class GetCardDetail {
 
     public SelenideElement pages = $(byXpath("//div[@class='navigation']//p"));
     public SelenideElement accountNumber = $(byXpath("//div[@class='wrapper']//p[@class='block-header-caps-16' and contains(text(),'GE')]"));
-    public ElementsCollection getAllElement = $$(byXpath("//div[@class='brief-info']//p"));
+    public ElementsCollection getAllElement = $$(byXpath("//div[@class='brief-info']//p[@class='block-header-caps-18 white' or  @class='block-header-caps-20' or  @class='block-header-caps-14 white']"));
     public SelenideElement nextProduct = $(byId("selectNextProduct"));
     public SelenideElement previousProduct = $(byId("selectPreviousProduct"));
 

@@ -10,12 +10,12 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class AccountsAndCardModel {
+public class GetAccountsAndCardModel {
 
     private  String cardName;
     private  String totalAmount;
     private  String accountNumber;
     private  List<String> amountsByCurrency = new ArrayList<>();
-    private  List<String> cardFunctionality = new ArrayList<>();
+   // private  List<String> cardFunctionality = new ArrayList<>();
 
 }

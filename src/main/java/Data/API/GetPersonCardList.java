@@ -8,7 +8,7 @@ import lombok.Data;
 public class GetPersonCardList {
     public String cardId;
     public String cardNumber;
-   // public String cardCurrency;
+    public String cardCurrency;
     public String cardNickName;
     public String cardImageAddress;
     public String cardProduct;

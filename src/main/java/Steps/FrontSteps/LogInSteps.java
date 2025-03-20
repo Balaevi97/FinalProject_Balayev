@@ -65,12 +65,12 @@ public class LogInSteps extends LogIn {
 
 
 
-//    public Boolean assertLogin () {
-//        Assert.assertEquals(
-//                sumMoneyAmount.getText(), "10,905.03 ₾");
-//        System.out.println();
-//        return true;
-//    }
+    public Boolean assertLogin () {
+        Assert.assertEquals(
+                sumMoneyAmount.getText(), "10,905.03 ₾");
+        System.out.println();
+        return true;
+    }
 
 
 }

@@ -1,7 +1,7 @@
 package Steps.APISteps;
 
 import Data.API.GetPersonCardList;
-import Data.Web.AccountsAndCardModel;
+import Data.Web.GetAccountsAndCardModel;
 import Data.API.GetPersonAccountListResponseModel;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static Calls.MyCredoGetAccountList.PostAccountListWithPersonID;
-import static Utils.URL.*;
+import static Utils.StringValues.*;
 
 public class AccountStep {
 
@@ -66,7 +66,7 @@ public class AccountStep {
 
 
     @Step
-    public void compareAccountInfo(TreeMap<String, AccountsAndCardModel> accountAndCardsMapWeb,
+    public void compareAccountInfo (TreeMap<String, GetAccountsAndCardModel> accountAndCardsMapWeb,
                                    List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> accountListAPI,
                                    List<GetPersonCardList> cardListAPI) {
         SoftAssert softAssert = new SoftAssert();
@@ -78,8 +78,8 @@ public class AccountStep {
         for (Map.Entry<String, List<GetPersonAccountListResponseModel>> apiAccount : accountListAPI) {
             String apiAccountNumber = apiAccount.getKey();
 
-            AccountsAndCardModel webAccount = accountAndCardsMapWeb.get(apiAccountNumber);
-            Map<String, AccountsAndCardModel> filteredAccounts = accountAndCardsMapWeb.entrySet().stream()
+            GetAccountsAndCardModel webAccount = accountAndCardsMapWeb.get(apiAccountNumber);
+            Map<String, GetAccountsAndCardModel> filteredAccounts = accountAndCardsMapWeb.entrySet().stream()
                     .filter(entry -> !"მიმდინარე".equals(entry.getValue().getCardName()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 

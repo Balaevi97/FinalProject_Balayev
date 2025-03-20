@@ -10,7 +10,7 @@ import static com.codeborne.selenide.Selenide.$$;
 public class MoveToCard {
 
     public SelenideElement products = $(byXpath("//p [text()='პროდუქტები']"));
-    public ElementsCollection loadPage = $$(byXpath("//div[@class='header trigger']"));
+    public ElementsCollection loadPage = $$(byXpath("//div[@class='header trigger']/p[contains(@class,'block-header-caps-20')]"));
     public SelenideElement checkProdList = $(byId("checkProdList"));
 
     public ElementsCollection moveToProduct = $$(byId("navToAccDetails"));
