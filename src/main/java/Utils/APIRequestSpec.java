@@ -10,8 +10,7 @@ import static io.restassured.RestAssured.given;
 public class APIRequestSpec {
 
     public static RequestSpecification getRequestSpec(String BASE_URL, String accessToken) {
-        return given()
-                .log().all()
+        return   given()
                 .baseUri(BASE_URL)
                 .contentType("application/graphql-response+json; charset=utf-8")
                 .accept("application/graphql-response+json")

@@ -8,7 +8,6 @@ import com.codeborne.selenide.*;
 import io.qameta.allure.Step;
 import org.testng.Assert;
 
-import java.io.File;
 import java.time.Duration;
 import java.util.*;
 
@@ -214,7 +213,7 @@ return this;
     public MoneyTransferSteps assertAccountBalanceAPI () {
 
         Assert.assertEquals(accountBalanceAPI + calculateTransferAmount(),
-                getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol), "Amounts does not match");
+                (double) Math.round(getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol) * 100) /100, "Amounts does not match");
         return this;
     }
 
@@ -258,7 +257,6 @@ return this;
     public void assertAccountBalanceWeb () {
         Assert.assertEquals(receiverAccountPreviousAmount,
                 getRenewalAccountAmount () - calculateTransferAmount() );
-        String a = "";
     }
 
 

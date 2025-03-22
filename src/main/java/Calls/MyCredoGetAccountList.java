@@ -2,10 +2,9 @@ package Calls;
 
 import io.restassured.response.Response;
 
-import static Utils.APIRequestSpec.getRequestSpec;
-import static Utils.APIRequestSpec.getResponseSpec;
+import static Utils.APIRequestSpec.*;
 import static Utils.StringValues.token;
-import static Utils.URL.myCredoAccountList;
+import static Utils.URL.myCredo_API;
 import static io.restassured.RestAssured.given;
 
 public class MyCredoGetAccountList {
@@ -14,7 +13,7 @@ public class MyCredoGetAccountList {
     public static Response  GetAccountListWithPersonID () {
 
         Response response = given()
-                .spec(getRequestSpec(myCredoAccountList, token))
+                .spec(getRequestSpec(myCredo_API, token))
                 .when()
                 .get("/graphql");
 
@@ -24,7 +23,7 @@ public class MyCredoGetAccountList {
 
     public static Response  PostAccountListWithPersonID (String Query) {
         Response response = given()
-                .spec(getRequestSpec(myCredoAccountList, token))
+                .spec(getRequestSpec(myCredo_API, token))
                 .body(Query)
                 .when()
                 .post("/graphql");

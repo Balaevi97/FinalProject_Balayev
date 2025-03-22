@@ -12,8 +12,7 @@ import java.io.File;
 import java.time.Duration;
 import java.util.*;
 
-import static com.codeborne.selenide.Condition.clickable;
-import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Condition.*;
 
 
 public class GetCardDetailSteps extends GetCardDetail {
@@ -169,7 +168,7 @@ public class GetCardDetailSteps extends GetCardDetail {
         return accountMap;
     }
 
-/// /////////////////////////////////
+
     /// ბარათის დაბლოკვა
 
     public Boolean cardBlockButtonAssert () {

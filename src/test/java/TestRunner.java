@@ -1,9 +1,7 @@
-
 import Steps.APISteps.GetCardList;
 import Steps.FrontSteps.*;
 import Steps.APISteps.GetAccountList;
 import org.testng.annotations.Test;
-
 
 import static Setup.SelenIDESetUp.openPage;
 import static Utils.StringValues.*;
@@ -51,8 +49,6 @@ public class TestRunner {
         getCardDetailSteps.downloadRequisite ()
                             .assertDownloadRequisiteMethod ();
 
-
-
     }
 
     @Test (priority = 4)
@@ -77,15 +73,6 @@ public class TestRunner {
                     .clickProducts ()
                     .openProdList ()
                     .assertAccountBalanceWeb ();
-
     }
-
-//@Test
-//    public void setLogInSteps() {
-//        moneyTransfer.checkFileExistence();
-//    //moneyTransfer.deleteRequisiteFile ()
-//    moneyTransfer.assertDeleteRequisiteFileMethod ();
-//}
-
 
 }
