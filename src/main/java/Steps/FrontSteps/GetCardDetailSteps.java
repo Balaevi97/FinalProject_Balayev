@@ -247,7 +247,7 @@ public class GetCardDetailSteps extends GetCardDetail {
 
     public void operationOnCard (String otp) {
         try {
-            for (int i = 1; i <= getTotalPagesCount(); i++) {
+            for (int i = getTotalPagesCount(); i >=1 ; i--) {
                 if (pinReset.isDisplayed() && cardBlock.isDisplayed()) {
                     pinResetStep()
                             .closePinResetStep()
@@ -277,7 +277,7 @@ public class GetCardDetailSteps extends GetCardDetail {
 
                     break;
                 } else {
-                    next();
+                    previous();
                 }
             }
         } catch (Exception e) {

@@ -1,21 +1,21 @@
 package Steps.FrontSteps;
 
 import Elements.LogIn;
-import Steps.APISteps.GetMainPageTotalAmount;
 import com.codeborne.selenide.Selenide;
 import org.testng.Assert;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 import static Steps.APISteps.GetMainPageTotalAmount.getTotalAmount;
-import static com.codeborne.selenide.Condition.clickable;
-import static com.codeborne.selenide.Condition.visible;
+import static Utils.StringValues.*;
+import static com.codeborne.selenide.Condition.*;
+
 
 
 public class LogInSteps extends LogIn {
 
-    public static String token;
-    GetMainPageTotalAmount getMainPageTotalAmount = new GetMainPageTotalAmount();
 
     public LogInSteps setUsername (String Username) {
         username.setValue(Username);
@@ -57,7 +57,6 @@ public class LogInSteps extends LogIn {
 
         if (fullToken != null && fullToken.startsWith("Bearer ")) {
             token = fullToken.split(" ")[1];
-            System.out.println("Extracted Token: " + token);
         } else {
             System.out.println("Token not found or in an unexpected format!");
         }
@@ -65,12 +64,24 @@ public class LogInSteps extends LogIn {
         return this;
     }
 
-    public String myMoney () {
-        return sumMoneyAmount.shouldBe(visible, Duration.ofSeconds(10)).getText().replaceAll("[^0-9.]", "");
+    public LogInSteps myMoney () {
+        Map<Character, String> currencyMap = new HashMap<>();
+        currencyMap.put('₾', "GEL");
+        currencyMap.put('$', "USD");
+        currencyMap.put('€', "EUR");
+
+        String money = sumMoneyAmount.shouldBe(visible, Duration.ofSeconds(10)).getText().trim();
+        myMoney = money.replaceAll("[^0-9.]", "");
+        String currencyOnly = money.replaceAll("[0-9.]", "").trim();
+        char currencySymbol = currencyOnly.replaceAll("[0-9.]", "").trim().charAt(currencyOnly.length()-1);
+
+        myMoneyCurrency = currencyMap.get(currencySymbol);
+        System.out.println(myMoneyCurrency);
+         return this;
     }
 
     public void assertLogin () {
-        Assert.assertEquals(myMoney (), getTotalAmount());
+        Assert.assertEquals(myMoney, getTotalAmount());
         System.out.println();
     }
 

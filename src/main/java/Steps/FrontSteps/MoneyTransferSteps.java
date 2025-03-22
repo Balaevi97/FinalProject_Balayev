@@ -24,9 +24,19 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
 
     GetAccountList accountStep = new GetAccountList();
 
+    public MoneyTransferSteps moveToFirstPage () {
+        for (int i = getCardDetailSteps.getTotalPagesCount(); i >= 1 ; i--) {
+            getCardDetailSteps.previous();
+        }
+        return this;
+    }
+
+
+
+
     public int getMaxAmountPAge() {
 
-        for (int i = getCardDetailSteps.getTotalPagesCount(); i >= 1 ; i--) {
+        for (int i = 1; i <= getCardDetailSteps.getTotalPagesCount() ; i++) {
             System.out.println("\n Current Page [" + getCardDetailSteps.getCurrentPage() + "]");
 
             List<Map.Entry<String, List<GetAccountsAndCardModel>>> allCardsGrouped = getCardDetailSteps.getAllCardsInfo();
@@ -45,13 +55,15 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
                         if (maxAmountWeb == null || amountInDouble > maxAmountWeb) {
                             maxAmountWeb = amountInDouble;
                             maxAmountPage = i;
+
                         }
                     } catch (NumberFormatException e) {
                         System.err.println("Invalid number format for amount: " + currency.getTotalAmount());
                     }
                 }
             }
-            getCardDetailSteps.previous();
+            System.out.println("maxAmountWeb is: " + maxAmountWeb +" and maxAmountPage is : " + maxAmountPage);
+            getCardDetailSteps.next();
         }
 
         return maxAmountPage;
@@ -246,6 +258,7 @@ return this;
     public void assertAccountBalanceWeb () {
         Assert.assertEquals(receiverAccountPreviousAmount,
                 getRenewalAccountAmount () - calculateTransferAmount() );
+        String a = "";
     }
 
 

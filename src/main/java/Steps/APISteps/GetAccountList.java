@@ -75,7 +75,7 @@ public class GetAccountList {
 
                         if (apiCardAccountNumber.equals(apiAccountNumber)) {
                             String webCardNickName = webAccount.getCardName();
-                            Assert.assertEquals(webCardNickName, apiCardNickName, "Card Name Does Not Match for Account Number: " + apiAccountNumber);
+                            Assert.assertEquals(webCardNickName, apiCardNickName, "Card name does not match for account number: " + apiAccountNumber);
                         }
                     }
                 }

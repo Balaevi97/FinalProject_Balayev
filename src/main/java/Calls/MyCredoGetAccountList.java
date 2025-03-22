@@ -2,9 +2,9 @@ package Calls;
 
 import io.restassured.response.Response;
 
-import static Steps.FrontSteps.LogInSteps.token;
 import static Utils.APIRequestSpec.getRequestSpec;
 import static Utils.APIRequestSpec.getResponseSpec;
+import static Utils.StringValues.token;
 import static Utils.URL.myCredoAccountList;
 import static io.restassured.RestAssured.given;
 

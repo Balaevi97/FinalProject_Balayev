@@ -28,6 +28,7 @@ public class TestRunner {
                 .clickApprove()
                 .removeEasyAuth()
                 .getBearerToken ()
+                .myMoney()
                 .assertLogin();
     }
 
@@ -42,21 +43,22 @@ public class TestRunner {
 
     @Test (priority = 3)
     public void getCardInfo () {
+        accountStep.compareAccountInfo(getCardDetailSteps.collectCardInfo(), accountStep.getAccountList(), getcardList.getcardList());
+        getCardDetailSteps.operationOnCard(OTP);
         getCardDetailSteps.checkFileExistence();
         getCardDetailSteps.deleteRequisiteFile ()
                             .assertDeleteRequisiteFileMethod ();
         getCardDetailSteps.downloadRequisite ()
                             .assertDownloadRequisiteMethod ();
 
-        accountStep.compareAccountInfo(getCardDetailSteps.collectCardInfo(), accountStep.getAccountList(), getcardList.getcardList());
-        getCardDetailSteps.operationOnCard(OTP);
+
 
     }
 
     @Test (priority = 4)
     public void moneyTransfer () {
-
-        moneyTransfer.getMaxAmountPAge();
+        moneyTransfer.moveToFirstPage ()
+                    .getMaxAmountPAge();
         moneyTransfer.goToMaxAmountPage()
                     .moveToTransfer ()
                     .transferToOwnAccount ()
