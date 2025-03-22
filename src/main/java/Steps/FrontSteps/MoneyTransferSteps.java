@@ -1,41 +1,28 @@
 package Steps.FrontSteps;
 
-import Data.API.GetPersonAccountListResponseModel;
-import Data.Web.GetAccountsAndCardModel;
+import Models.API.GetPersonAccountListResponseModel;
+import Models.Web.GetAccountsAndCardModel;
 import Elements.MoneyTransfer;
-import Steps.APISteps.AccountStep;
-import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.SelenideElement;
+import Steps.APISteps.GetAccountList;
+import com.codeborne.selenide.*;
 import io.qameta.allure.Step;
 import org.testng.Assert;
 
+import java.io.File;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static Utils.StringValues.percentage;
-import static Utils.StringValues.totalPercentage;
-import static com.codeborne.selenide.Condition.clickable;
-import static com.codeborne.selenide.Condition.visible;
+import static Utils.StringValues.*;
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byXpath;
 
 
 public class MoneyTransferSteps extends MoneyTransfer {
 
 GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
-    Double maxAmountWeb;
+    public Double accountBalanceAPI;
 
-    int maxAmountPage ;
-    Double accountBalanceAPI;
-    private Double accountBalanceAPI2 = 0.0;
-
-
-    public String transferCardAmountSymbol;
-    public String receiverAccountForTransfer;
-    public Double receiverAccountPreviousAmount;
-
-    AccountStep accountStep = new AccountStep();
+    GetAccountList accountStep = new GetAccountList();
 
     public int getMaxAmountPAge() {
 
@@ -67,8 +54,6 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
             getCardDetailSteps.previous();
         }
 
-        System.out.println("Max Amount Found: " + maxAmountWeb + " on Page: " + maxAmountPage);
-
         return maxAmountPage;
     }
 
@@ -83,6 +68,14 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
         System.out.println("Returned to Page: " + getCardDetailSteps.getCurrentPage());
     return this;
     }
+
+
+
+
+
+
+
+
 
     public MoneyTransferSteps moveToTransfer () {
         transfer.click();
@@ -108,10 +101,10 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
     }
 
     public List<String> getCard_AccountList() {
-        return card_AccountList.texts(); // აქ ვაბრუნებთ ანგარიშების სიას
+        return card_AccountList.texts();
     }
 
-    public void choseAccount() {
+    public MoneyTransferSteps choseAccount() {
         List<String> accountList = getCard_AccountList();
         String selectedCard = getSelectedCardNumber();
 
@@ -122,7 +115,7 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
                 break;
             }
         }
-
+return this;
     }
 
     public void chooseCurrency() {
@@ -168,7 +161,7 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
     }
 
     public MoneyTransferSteps closeMessageWindow () {
-        if (transferMessage.shouldBe(visible, Duration.ofSeconds(10)).isDisplayed()) {
+        if (transferMessage.shouldBe(visible, Duration.ofSeconds(15)).isDisplayed()) {
             transferMessage.click();
             closeMessageWin.click();
         }
@@ -192,8 +185,8 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
 
                     if (account.getCurrency().equals(convertCurrencySymbol)) {
                         this.accountBalanceAPI = Math.round(Double.parseDouble(account.getAvailableBalance()) * 100.0) / 100.0;
-                        if (accountBalanceAPI-calculateTransferAmount () != accountBalanceAPI2) {
-                            accountBalanceAPI2 =  Math.round(accountBalanceAPI-calculateTransferAmount ()*100.0)/100.0;
+                        if (accountBalanceAPI+calculateTransferAmount() != accountBalanceAPI2) {
+                            accountBalanceAPI2 =  Math.round(accountBalanceAPI+calculateTransferAmount()*100.0)/100.0;
                         }
                         return accountBalanceAPI;
                     }
@@ -208,8 +201,8 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
 
     public MoneyTransferSteps assertAccountBalanceAPI () {
 
-        Assert.assertEquals(accountBalanceAPI2 + calculateTransferAmount(),
-                getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol));
+        Assert.assertEquals(accountBalanceAPI + calculateTransferAmount(),
+                getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol), "Amounts does not match");
         return this;
     }
 
@@ -230,13 +223,24 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
     }
 
     public Double getRenewalAccountAmount () {
-        SelenideElement currencyToSelect = selectedAccount.filter(Condition.text(receiverAccountForTransfer))
-                .first()
-                .ancestor("div[2]")
-                .$(byXpath("p[@class='block-header-caps-20']"));
+        double amount = 0.0;
+        try{
+            SelenideElement currencyToSelect = selectedAccount.filter(Condition.text(receiverAccountForTransfer))
+                    .first()
+                    .ancestor("div[2]")
+                    .$(byXpath("p[@class='block-header-caps-20']"));
 
-        return Double.parseDouble(currencyToSelect.getText().replaceAll("[^a-zA-Z0-9.]",""));
+            if (!currencyToSelect.isDisplayed()) {
+                openProdList ();
+            } else {
+                return amount = Double.parseDouble(currencyToSelect.getText().replaceAll("[^a-zA-Z0-9.]",""));
+            }
 
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        return amount;
     }
 
     public void assertAccountBalanceWeb () {

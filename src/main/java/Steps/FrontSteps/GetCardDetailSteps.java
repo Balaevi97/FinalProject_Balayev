@@ -1,12 +1,14 @@
 package Steps.FrontSteps;
 
-import Data.Web.GetAccountsAndCardModel;
+import Models.Web.GetAccountsAndCardModel;
 import Elements.GetCardDetail;
 
+import com.codeborne.selenide.Configuration;
 import io.qameta.allure.Step;
 import org.testng.Assert;
 
 
+import java.io.File;
 import java.time.Duration;
 import java.util.*;
 
@@ -15,6 +17,51 @@ import static com.codeborne.selenide.Condition.visible;
 
 
 public class GetCardDetailSteps extends GetCardDetail {
+
+    public boolean checkFileExistence() {
+        int timeout = 10000;
+        long startTime = System.currentTimeMillis();
+        double endTime = startTime + timeout;
+        File downloadsFolder = new File(Configuration.downloadsFolder).getAbsoluteFile();
+
+        while (System.currentTimeMillis() < endTime) {
+            File[] matchingFiles = downloadsFolder.listFiles((dir, name) -> name.startsWith("Requisites"));
+
+            if (matchingFiles != null && matchingFiles.length > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public GetCardDetailSteps deleteRequisiteFile () {
+        File Requisites = new File(Configuration.downloadsFolder);
+        File[] invoiceFiles = Requisites.listFiles((dir, name) -> name.startsWith("Requisites"));
+        if (checkFileExistence()) {
+
+            assert invoiceFiles != null;
+            for (File file : invoiceFiles) {
+                boolean deleted = file.delete();
+            }
+        }
+        return this;
+    }
+
+    public boolean assertDeleteRequisiteFileMethod () {
+        Assert.assertFalse(checkFileExistence());
+        return false;
+    }
+
+    public GetCardDetailSteps downloadRequisite () {
+        requisite.click();
+        return this;
+    }
+
+    public boolean assertDownloadRequisiteMethod () {
+        Assert.assertTrue(checkFileExistence());
+        return true;
+    }
 
     @Step
     public List<Map.Entry<String, List<GetAccountsAndCardModel>>> getAllCardsInfo() {
@@ -40,12 +87,6 @@ public class GetCardDetailSteps extends GetCardDetail {
                 amountsByCurrency.add(getAllElement.get(i++).getText());
             }
             card.setAmountsByCurrency(amountsByCurrency);
-
-//            List<String> cardFunctionalities = new ArrayList<>();
-//            while (i < getAllElement.size() && !getAllElement.get(i).getText().matches(".*[0-9].*")) {
-//                cardFunctionalities.add(getAllElement.get(i++).getText());
-//            }
-//            card.setCardFunctionality(cardFunctionalities);
 
             if (!groupedCards.containsKey(accountNumberText)) {
                 groupedCards.put(accountNumberText, new ArrayList<>());
@@ -93,7 +134,6 @@ public class GetCardDetailSteps extends GetCardDetail {
         List<GetAccountsAndCardModel> allCardsInfo = new ArrayList<>();
 
         for (int i = 1; i <= getTotalPagesCount(); i++) {
-           // System.out.println("\n Current Page [" + getCurrentPage() + "]");
             getCurrentPage();
             List<Map.Entry<String, List<GetAccountsAndCardModel>>> allCardsGrouped = getAllCardsInfo();
 
@@ -104,32 +144,15 @@ public class GetCardDetailSteps extends GetCardDetail {
                     if (currency.getCardName() == null || currency.getTotalAmount() == null || currency.getCardName().isEmpty()) {
                         continue;
                     }
-//                    String cardName = currency.getCardName();
-//                    String totalAmount = currency.getTotalAmount();
-//                    String accountNumber = currency.getAccountNumber();
-
                      currency.getCardName();
                     currency.getTotalAmount();
                     currency.getAccountNumber();
-                  //  System.out.println("Currency Details: ");
-//                    System.out.println("Card Name: " + currency.getCardName());
-//                    System.out.println("Total Amount: " + currency.getTotalAmount());
-//
-//                    System.out.println("Account Number: " + currency.getAccountNumber());
-
 
                     for (String amount : currency.getAmountsByCurrency()) {
                         if (amount != null && !amount.isEmpty()) {
                             char currencySymbol = amount.charAt(amount.length() - 1);
-                           // System.out.println("Amount in " + currencySymbol + ": " + amount);
                         }
                     }
-
-//                    for (String function : currency.getCardFunctionality()) {
-//                        if (function != null && !function.isEmpty()) {
-//                            System.out.println("ბარათის ფუნქცია: " + function);
-//                        }
-//                    }
 
                     allCardsInfo.add(currency);
                 }
@@ -222,11 +245,10 @@ public class GetCardDetailSteps extends GetCardDetail {
     }
 
 
-    public GetCardDetailSteps operationOnCard (String otp) {
+    public void operationOnCard (String otp) {
         try {
             for (int i = 1; i <= getTotalPagesCount(); i++) {
                 if (pinReset.isDisplayed() && cardBlock.isDisplayed()) {
-                    // Execute necessary steps
                     pinResetStep()
                             .closePinResetStep()
                             .pinResetStep()
@@ -259,10 +281,9 @@ public class GetCardDetailSteps extends GetCardDetail {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
-        return this;
     }
 
 

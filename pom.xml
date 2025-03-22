@@ -23,6 +23,13 @@
         <version>5.5.0</version>
         <scope>test</scope>
     </dependency>
+
+    <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>rest-assured</artifactId>
+        <version>5.5.0</version>
+        <scope>compile</scope>
+    </dependency>
     <!--  https://mvnrepository.com/artifact/org.testng/testng  -->
     <dependency>
         <groupId>org.testng</groupId>
@@ -71,12 +78,7 @@
         <version>7.10.2</version>
         <scope>compile</scope>
     </dependency>
-    <dependency>
-        <groupId>io.rest-assured</groupId>
-        <artifactId>rest-assured</artifactId>
-        <version>5.5.0</version>
-        <scope>compile</scope>
-    </dependency>
+
 
     <!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-maven -->
     <dependency>
@@ -150,6 +152,7 @@
             <version>5.7.0</version>
             <scope>test</scope>
         </dependency>
+
 
     </dependencies>
 

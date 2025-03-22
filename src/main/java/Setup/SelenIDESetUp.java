@@ -8,6 +8,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
+import java.io.File;
 import java.util.HashMap;
 
 import static com.codeborne.selenide.Selenide.open;
@@ -18,18 +19,18 @@ public class SelenIDESetUp {
     public static void setDriver() {
         ChromeOptions options = new ChromeOptions();
         HashMap<String, Object> chromePrefs = new HashMap<>();
-        chromePrefs.put("download.default_directory", System.getProperty("user.home"));
+        chromePrefs.put("download.default_directory",Configuration.downloadsFolder);
         chromePrefs.put("download.prompt_for_download", false);
         chromePrefs.put("download.directory_upgrade", true);
         chromePrefs.put("safebrowsing.enabled", true);
         chromePrefs.put("profile.default_content_settings.popups", 0);
-        chromePrefs.put("profile.default_content_setting_values.automatic_downloads", 1);
+        chromePrefs.put("profile.content_settings.exceptions.automatic_downloads.*.setting", 1);
 
         System.setProperty("webdriver.http.factory", "jdk-http-client");
         Configuration.browserSize = null;
         Configuration.browserCapabilities = options;
         Configuration.browser = "chrome";
-        Configuration.downloadsFolder = System.getProperty("user.home") ;
+        Configuration.downloadsFolder = System.getProperty("user.home") + File.separator + "Downloads";
         Configuration.headless = false;
         Configuration.timeout = 10000;
         Configuration.proxyEnabled = false;
@@ -43,7 +44,7 @@ public class SelenIDESetUp {
         options.setExperimentalOption("prefs", chromePrefs);
         options.addArguments("--start-maximized");
         options.addArguments("--disable-notifications");
-        options.addArguments("--incognito");
+    //    options.addArguments("--incognito");
         options.addArguments("--ignore-certificate-errors");
         options.addArguments("--allow-insecure-localhost");
         options.addArguments("--accept-insecure-certs");
@@ -52,7 +53,8 @@ public class SelenIDESetUp {
         options.addArguments("--disable-web-security");
         options.addArguments("--test-type");
         options.addArguments("--disable-gpu");
-
+        options.addArguments("--disable-popup-blocking");
+        options.addArguments("--disable-extensions");
     }
     public static void openPage (String url) {
         setDriver();

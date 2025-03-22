@@ -1,8 +1,8 @@
 package Steps.APISteps;
 
-import Data.API.GetPersonCardList;
-import Data.Web.GetAccountsAndCardModel;
-import Data.API.GetPersonAccountListResponseModel;
+import Models.API.GetPersonCardList;
+import Models.Web.GetAccountsAndCardModel;
+import Models.API.GetPersonAccountListResponseModel;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import org.testng.Assert;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import static Calls.MyCredoGetAccountList.PostAccountListWithPersonID;
 import static Utils.StringValues.*;
 
-public class AccountStep {
+public class GetAccountList {
 
     @Step
     public List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> getAccountList() {
@@ -46,24 +46,6 @@ public class AccountStep {
         return result;
     }
 
-    @Step
-    public List<GetPersonCardList> getcardList() {
-
-        Response response = PostAccountListWithPersonID(cardQuery);
-        List<GetPersonCardList> cards = response.jsonPath()
-                .getList("data.cards", GetPersonCardList.class);
-
-        List<GetPersonCardList> filteredCards = cards.stream()
-                .collect(Collectors.toMap(
-                        GetPersonCardList::getAccountNumber, card -> card,
-                        (existing, replacement) -> existing))
-                .values()
-                .stream()
-                .toList();
-
-        return filteredCards;
-    }
-
 
     @Step
     public void compareAccountInfo (TreeMap<String, GetAccountsAndCardModel> accountAndCardsMapWeb,
@@ -80,12 +62,13 @@ public class AccountStep {
 
             GetAccountsAndCardModel webAccount = accountAndCardsMapWeb.get(apiAccountNumber);
             Map<String, GetAccountsAndCardModel> filteredAccounts = accountAndCardsMapWeb.entrySet().stream()
-                    .filter(entry -> !"მიმდინარე".equals(entry.getValue().getCardName()))
+                    .filter(entry -> !accountType.equals(entry.getValue().getCardName()))
+                    .filter(entry -> !accountType1.equals(entry.getValue().getCardName()))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
             if (webAccount != null) {
 
-                if (!"მიმდინარე".equals(webAccount.getCardName())) {
+                if (!accountType.equals(webAccount.getCardName()) && !accountType1.equals(webAccount.getCardName())) {
                     for (GetPersonCardList apiCard : cardListAPI) {
                         String apiCardAccountNumber = apiCard.getAccountNumber();
                         String apiCardNickName = apiCard.getCardNickName();

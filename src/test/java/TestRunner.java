@@ -1,21 +1,25 @@
 
+import Steps.APISteps.GetCardList;
 import Steps.FrontSteps.*;
-import Steps.APISteps.AccountStep;
+import Steps.APISteps.GetAccountList;
 import org.testng.annotations.Test;
 
 
 import static Setup.SelenIDESetUp.openPage;
 import static Utils.StringValues.*;
-import static Utils.URL.myCredo;
+import static Utils.URL.*;
 
 public class TestRunner {
     LogInSteps logInSteps = new LogInSteps();
     MoveToCardSteps moveToCardSteps = new MoveToCardSteps();
     GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
     MoneyTransferSteps moneyTransfer = new MoneyTransferSteps();
-    AccountStep accountStep = new AccountStep();
+    GetAccountList accountStep = new GetAccountList();
+    GetCardList getcardList = new GetCardList();
+
     @Test (priority = 1)
     public void LoginTest () {
+
         openPage(myCredo);
         logInSteps.setUsername(bahruzUsername)
                 .setPassword(bahruzPassword)
@@ -30,7 +34,6 @@ public class TestRunner {
 
     @Test (priority = 2)
     public void moveToCardSteps () {
-
         moveToCardSteps.clickProducts()
                 .openProdList()
                 .moveToProduct()
@@ -39,37 +42,48 @@ public class TestRunner {
 
     @Test (priority = 3)
     public void getCardInfo () {
-        accountStep.compareAccountInfo(getCardDetailSteps.collectCardInfo(), accountStep.getAccountList(), accountStep.getcardList());
+        getCardDetailSteps.checkFileExistence();
+        getCardDetailSteps.deleteRequisiteFile ()
+                            .assertDeleteRequisiteFileMethod ();
+        getCardDetailSteps.downloadRequisite ()
+                            .assertDownloadRequisiteMethod ();
 
+        accountStep.compareAccountInfo(getCardDetailSteps.collectCardInfo(), accountStep.getAccountList(), getcardList.getcardList());
+        getCardDetailSteps.operationOnCard(OTP);
 
     }
 
     @Test (priority = 4)
     public void moneyTransfer () {
+
         moneyTransfer.getMaxAmountPAge();
-        getCardDetailSteps.operationOnCard(OTP);
         moneyTransfer.goToMaxAmountPage()
-                .moveToTransfer ()
-                .transferToOwnAccount ()
-                .getTransferCardCurrency();
+                    .moveToTransfer ()
+                    .transferToOwnAccount ()
+                    .getTransferCardCurrency();
 
         moneyTransfer.openReceiverAccountList ()
-                .choseAccount();
-        moneyTransfer.getAccountBalanceAPI(moneyTransfer.receiverAccountForTransfer,
-                moneyTransfer.transferCardAmountSymbol);
+                    .choseAccount();
+        moneyTransfer.getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol);
         moneyTransfer.getReceiverAccountAmount();
         moneyTransfer.chooseCurrency();
 
         moneyTransfer.setTransferAmount ()
-                .approvePayment ()
-                .closeMessageWindow ()
-                .assertAccountBalanceAPI ()
-                .clickProducts ()
-                .assertAccountBalanceWeb ();
+                    .approvePayment ()
+                    .closeMessageWindow ()
+                    .assertAccountBalanceAPI ()
+                    .clickProducts ()
+                    .openProdList ()
+                    .assertAccountBalanceWeb ();
 
     }
 
-
+//@Test
+//    public void setLogInSteps() {
+//        moneyTransfer.checkFileExistence();
+//    //moneyTransfer.deleteRequisiteFile ()
+//    moneyTransfer.assertDeleteRequisiteFileMethod ();
+//}
 
 
 }

@@ -1,11 +1,13 @@
 package Steps.FrontSteps;
 
 import Elements.LogIn;
+import Steps.APISteps.GetMainPageTotalAmount;
 import com.codeborne.selenide.Selenide;
 import org.testng.Assert;
 
 import java.time.Duration;
 
+import static Steps.APISteps.GetMainPageTotalAmount.getTotalAmount;
 import static com.codeborne.selenide.Condition.clickable;
 import static com.codeborne.selenide.Condition.visible;
 
@@ -13,7 +15,7 @@ import static com.codeborne.selenide.Condition.visible;
 public class LogInSteps extends LogIn {
 
     public static String token;
-
+    GetMainPageTotalAmount getMainPageTotalAmount = new GetMainPageTotalAmount();
 
     public LogInSteps setUsername (String Username) {
         username.setValue(Username);
@@ -32,7 +34,7 @@ public class LogInSteps extends LogIn {
 
 
     public LogInSteps setOTP (String otp) {
-        OTP.shouldBe(clickable, Duration.ofSeconds(5)).click();
+        OTP.shouldBe(clickable, Duration.ofSeconds(10)).click();
         OTP.setValue(otp);
         return this;
     }
@@ -63,11 +65,12 @@ public class LogInSteps extends LogIn {
         return this;
     }
 
-
+    public String myMoney () {
+        return sumMoneyAmount.shouldBe(visible, Duration.ofSeconds(10)).getText().replaceAll("[^0-9.]", "");
+    }
 
     public void assertLogin () {
-        Assert.assertEquals(
-                sumMoneyAmount.getText(), "10,905.03 ₾");
+        Assert.assertEquals(myMoney (), getTotalAmount());
         System.out.println();
     }
 

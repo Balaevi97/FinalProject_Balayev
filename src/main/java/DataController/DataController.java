@@ -1,6 +1,6 @@
 package DataController;
 
-import Data.API.GetPersonAccountListRequestModel;
+import Models.SQL.GetPersonAccountListRequestModel;
 import SQLDatabaseAccess.SQLDatabaseAccess;
 
 import java.sql.Connection;

@@ -1,4 +1,4 @@
-package Data.API;
+package Models.SQL;
 
 import lombok.Data;
 

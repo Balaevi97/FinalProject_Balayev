@@ -1,11 +1,9 @@
 package Elements;
 
-import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.*;
 
 import static com.codeborne.selenide.Selectors.*;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.Selenide.*;
 
 public class MoneyTransfer {
 
@@ -26,4 +24,6 @@ public class MoneyTransfer {
     public SelenideElement products = $(byXpath("//p [text()='პროდუქტები']"));
     public ElementsCollection loadPage = $$(byXpath("//div[@class='header trigger']/p[contains(@class,'block-header-caps-20')]"));
     public SelenideElement checkProdList = $(byId("checkProdList"));
+
+
 }
