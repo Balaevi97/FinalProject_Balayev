@@ -8,6 +8,8 @@ import org.testng.Assert;
 
 import java.time.Duration;
 
+import static com.codeborne.selenide.Condition.clickable;
+
 
 public class MoveToCardSteps extends MoveToCard {
     @Step
@@ -17,11 +19,14 @@ public class MoveToCardSteps extends MoveToCard {
     }
     @Step
     public MoveToCardSteps openProdList () {
+
         for (SelenideElement product : loadPage) {
-            product.shouldBe(Condition.visible, Duration.ofSeconds(10));
-            product.shouldBe(Condition.clickable, Duration.ofSeconds(10));
+            if (product.shouldBe(clickable, Duration.ofSeconds(10)).isDisplayed()) {
+                checkProdList.click();
+                break;
+            }
         }
-        checkProdList.click();
+
         return this;
     }
     @Step

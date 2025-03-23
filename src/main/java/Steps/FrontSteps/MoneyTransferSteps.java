@@ -14,6 +14,7 @@ import java.util.*;
 import static Utils.StringValues.*;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byXpath;
+import static com.codeborne.selenide.Selenide.refresh;
 
 
 public class MoneyTransferSteps extends MoneyTransfer {
@@ -22,7 +23,7 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
     public Double accountBalanceAPI;
 
     GetAccountList accountStep = new GetAccountList();
-
+    @Step
     public MoneyTransferSteps moveToFirstPage () {
         for (int i = getCardDetailSteps.getTotalPagesCount(); i >= 1 ; i--) {
             getCardDetailSteps.previous();
@@ -30,13 +31,10 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
         return this;
     }
 
-
-
-
+    @Step
     public int getMaxAmountPAge() {
 
         for (int i = 1; i <= getCardDetailSteps.getTotalPagesCount() ; i++) {
-            System.out.println("\n Current Page [" + getCardDetailSteps.getCurrentPage() + "]");
 
             List<Map.Entry<String, List<GetAccountsAndCardModel>>> allCardsGrouped = getCardDetailSteps.getAllCardsInfo();
 
@@ -61,13 +59,13 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
                     }
                 }
             }
-            System.out.println("maxAmountWeb is: " + maxAmountWeb +" and maxAmountPage is : " + maxAmountPage);
             getCardDetailSteps.next();
         }
-
+        System.out.println("maxAmountWeb is: " + maxAmountWeb +" and maxAmountPage is : " + maxAmountPage);
         return maxAmountPage;
     }
 
+    @Step
     public MoneyTransferSteps goToMaxAmountPage() {
         while (getCardDetailSteps.getCurrentPage() != maxAmountPage) {
             if (getCardDetailSteps.getCurrentPage() < maxAmountPage) {
@@ -76,45 +74,37 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
                 getCardDetailSteps.previous();
             }
         }
-        System.out.println("Returned to Page: " + getCardDetailSteps.getCurrentPage());
     return this;
     }
 
-
-
-
-
-
-
-
-
+    @Step
     public MoneyTransferSteps moveToTransfer () {
         transfer.click();
         return this;
     }
-
+    @Step
     public MoneyTransferSteps transferToOwnAccount () {
         ownAccount.shouldBe(clickable, Duration.ofSeconds(10)).click();
         return this;
     }
-
+    @Step
     public String getSelectedCardNumber () {
         return selectedCardNumber.getText();
     }
-
+    @Step
     public String getTransferCardCurrency() {
         return transferCardAmountSymbol = selectedCardSymbol.shouldBe(visible, Duration.ofSeconds(10)).getText().replaceAll("[0-9.,\\s]", "");
     }
-
+    @Step
     public MoneyTransferSteps openReceiverAccountList () {
         transferTo.shouldBe(clickable, Duration.ofSeconds(10)).click();
         return this;
     }
-
+    @Step
     public List<String> getCard_AccountList() {
         return card_AccountList.texts();
     }
-
+    @Step
     public MoneyTransferSteps choseAccount() {
         List<String> accountList = getCard_AccountList();
         String selectedCard = getSelectedCardNumber();
@@ -128,7 +118,7 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
         }
 return this;
     }
-
+    @Step
     public void chooseCurrency() {
 
         SelenideElement currencyToSelect = selectedAccount.filter(Condition.text(receiverAccountForTransfer))
@@ -139,7 +129,7 @@ return this;
         currencyToSelect.click();
 
     }
-
+    @Step
     public Double getReceiverAccountAmount () {
 
         SelenideElement currencyToSelect = selectedAccount.filter(Condition.text(receiverAccountForTransfer))
@@ -153,24 +143,24 @@ return this;
         return receiverAccountPreviousAmount;
     }
 
-
+    @Step
     public Double calculateTransferAmount () {
         return Math.round(((percentage/totalPercentage)*maxAmountWeb) * totalPercentage) / totalPercentage;
     }
 
 
-
+    @Step
     public MoneyTransferSteps setTransferAmount () {
         choseCard_Account.setValue(String.valueOf(calculateTransferAmount ()));
 
         return this;
     }
-
+    @Step
     public MoneyTransferSteps approvePayment () {
         payment.shouldBe(clickable, Duration.ofSeconds(3)).click();
         return this;
     }
-
+    @Step
     public MoneyTransferSteps closeMessageWindow () {
         if (transferMessage.shouldBe(visible, Duration.ofSeconds(15)).isDisplayed()) {
             transferMessage.click();
@@ -209,11 +199,11 @@ return this;
         return null;
     }
 
-
+    @Step
     public MoneyTransferSteps assertAccountBalanceAPI () {
 
         Assert.assertEquals(accountBalanceAPI + calculateTransferAmount(),
-                (double) Math.round(getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol) * 100) /100, "Amounts does not match");
+                getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol) ,"Amounts does not match");
         return this;
     }
 
@@ -225,39 +215,53 @@ return this;
 
     @Step
     public MoneyTransferSteps openProdList () {
+
         for (SelenideElement product : loadPage) {
-            product.shouldBe(visible, Duration.ofSeconds(10));
-            product.shouldBe(clickable, Duration.ofSeconds(10));
+            if (product.shouldBe(clickable, Duration.ofSeconds(10)).isDisplayed()) {
+                checkProdList.click();
+                break;
+            }
         }
-        checkProdList.click();
+
         return this;
     }
 
-    public Double getRenewalAccountAmount () {
-        double amount = 0.0;
+    public MoneyTransferSteps getRenewalAccountAmount () {
+//        SelenideElement currencyToSelect = selectedAccount.filter(Condition.text(receiverAccountForTransfer))
+//                .first();
+//        currencyToSelect.click();
         try{
             SelenideElement currencyToSelect = selectedAccount.filter(Condition.text(receiverAccountForTransfer))
-                    .first()
-                    .ancestor("div[2]")
-                    .$(byXpath("p[@class='block-header-caps-20']"));
-
+                    .first();
             if (!currencyToSelect.isDisplayed()) {
                 openProdList ();
             } else {
-                return amount = Double.parseDouble(currencyToSelect.getText().replaceAll("[^a-zA-Z0-9.]",""));
+                currencyToSelect.click();
             }
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+        return this;
+    }
 
-        return amount;
+    public Double getChangedAmount () {
+        if (!changedAmount.isDisplayed()) {
+            getRenewalAccountAmount ();
+        }
+        return Double.parseDouble(changedAmount.shouldBe(visible, Duration.ofSeconds(5)).getText().replaceAll("[^a-zA-Z0-9.]",""));
+    }
+
+
+    public boolean assertAmountChangesOnAccount () {
+        while (Objects.equals(receiverAccountPreviousAmount, getChangedAmount())){
+            refresh();
+        }
+        return true;
     }
 
     public void assertAccountBalanceWeb () {
         Assert.assertEquals(receiverAccountPreviousAmount,
-                getRenewalAccountAmount () - calculateTransferAmount() );
+                getChangedAmount() - calculateTransferAmount());
     }
-
-
 }

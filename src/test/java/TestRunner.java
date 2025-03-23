@@ -59,20 +59,20 @@ public class TestRunner {
                     .moveToTransfer ()
                     .transferToOwnAccount ()
                     .getTransferCardCurrency();
-
         moneyTransfer.openReceiverAccountList ()
                     .choseAccount();
         moneyTransfer.getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol);
         moneyTransfer.getReceiverAccountAmount();
         moneyTransfer.chooseCurrency();
-
         moneyTransfer.setTransferAmount ()
                     .approvePayment ()
                     .closeMessageWindow ()
                     .assertAccountBalanceAPI ()
                     .clickProducts ()
                     .openProdList ()
-                    .assertAccountBalanceWeb ();
+                    .getRenewalAccountAmount()
+                    .assertAmountChangesOnAccount ();
+        moneyTransfer.assertAccountBalanceWeb ();
     }
 
 }

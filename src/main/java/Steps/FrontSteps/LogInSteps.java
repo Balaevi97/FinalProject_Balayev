@@ -2,6 +2,7 @@ package Steps.FrontSteps;
 
 import Elements.LogIn;
 import com.codeborne.selenide.Selenide;
+import io.qameta.allure.Step;
 import org.testng.Assert;
 
 import java.time.Duration;
@@ -16,34 +17,34 @@ import static com.codeborne.selenide.Condition.*;
 
 public class LogInSteps extends LogIn {
 
-
+    @Step
     public LogInSteps setUsername (String Username) {
         username.setValue(Username);
         return this;
     }
-
+    @Step
     public LogInSteps setPassword (String Password) {
         password.setValue(Password);
         return this;
     }
-
+    @Step
     public LogInSteps clickSubmit () {
         submit.click();
         return this;
     }
 
-
+    @Step
     public LogInSteps setOTP (String otp) {
         OTP.shouldBe(clickable, Duration.ofSeconds(10)).click();
         OTP.setValue(otp);
         return this;
     }
-
+    @Step
     public LogInSteps clickApprove () {
         approve.shouldBe(clickable, Duration.ofSeconds(15)).click();
         return this;
     }
-
+    @Step
     public LogInSteps removeEasyAuth () {
         if (easyAuth.shouldBe(visible, Duration.ofSeconds(10)).isDisplayed()) {
             easyAuth.click();
@@ -51,7 +52,7 @@ public class LogInSteps extends LogIn {
         }
         return this;
     }
-
+    @Step
     public LogInSteps getBearerToken() {
         String fullToken = Selenide.executeJavaScript("return sessionStorage.getItem('token');");
 
@@ -63,7 +64,7 @@ public class LogInSteps extends LogIn {
 
         return this;
     }
-
+    @Step
     public LogInSteps myMoney () {
         Map<Character, String> currencyMap = new HashMap<>();
         currencyMap.put('₾', "GEL");
@@ -79,7 +80,7 @@ public class LogInSteps extends LogIn {
         System.out.println(myMoneyCurrency);
          return this;
     }
-
+    @Step
     public void assertLogin () {
         Assert.assertEquals(myMoney, getTotalAmount());
         System.out.println();
