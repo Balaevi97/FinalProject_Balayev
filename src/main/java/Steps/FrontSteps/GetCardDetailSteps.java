@@ -1,17 +1,23 @@
 package Steps.FrontSteps;
 
+import Models.API.GetPersonAccountListResponseModel;
+import Models.API.GetPersonCardList;
 import Models.Web.GetAccountsAndCardModel;
 import Elements.GetCardDetail;
 
 import com.codeborne.selenide.Configuration;
 import io.qameta.allure.Step;
 import org.testng.Assert;
+import org.testng.asserts.SoftAssert;
 
 
 import java.io.File;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static Utils.StringValues.accountType;
+import static Utils.StringValues.accountType1;
 import static com.codeborne.selenide.Condition.*;
 
 
@@ -260,7 +266,7 @@ public class GetCardDetailSteps extends GetCardDetail {
     @Step
     public void operationOnCard (String otp) {
         try {
-            for (int i = getTotalPagesCount(); i >=1 ; i--) {
+            for (int i = 1; i <= getTotalPagesCount() ; i++) {
                 if (pinReset.isDisplayed() || cardUnblock.isDisplayed()) {
 
                     if (cardUnblock.isDisplayed()) {
@@ -295,11 +301,110 @@ public class GetCardDetailSteps extends GetCardDetail {
 
                     break;
                 } else {
-                    previous();
+                    next();
                 }
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
+
+    @Step
+    public GetCardDetailSteps moveToFirstPage () {
+        for (int i = getTotalPagesCount(); i >= 1 ; i--) {
+            previous();
+        }
+        return this;
+    }
+
+    @Step
+    public GetCardDetailSteps compareAccountInfo(TreeMap<String, GetAccountsAndCardModel> accountAndCardsMapWeb,
+                                   List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> accountListAPI,
+                                   List<GetPersonCardList> cardListAPI) {
+        SoftAssert softAssert = new SoftAssert();
+        Map<String, String> currencyMap = new HashMap<>();
+        currencyMap.put("₾", "GEL");
+        currencyMap.put("$", "USD");
+        currencyMap.put("€", "EUR");
+
+        for (Map.Entry<String, List<GetPersonAccountListResponseModel>> apiAccount : accountListAPI) {
+            String apiAccountNumber = apiAccount.getKey();
+
+            GetAccountsAndCardModel webAccount = accountAndCardsMapWeb.get(apiAccountNumber);
+            Map<String, GetAccountsAndCardModel> filteredAccounts = accountAndCardsMapWeb.entrySet().stream()
+                    .filter(entry -> !accountType.equals(entry.getValue().getCardName()))
+                    .filter(entry -> !accountType1.equals(entry.getValue().getCardName()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+            if (webAccount != null) {
+
+                if (!accountType.equals(webAccount.getCardName()) && !accountType1.equals(webAccount.getCardName())) {
+                    for (GetPersonCardList apiCard : cardListAPI) {
+                        String apiCardAccountNumber = apiCard.getAccountNumber();
+                        String apiCardNickName = apiCard.getCardNickName();
+
+                        if (apiCardAccountNumber.equals(apiAccountNumber)) {
+                            String webCardNickName = webAccount.getCardName();
+                            Assert.assertEquals(webCardNickName, apiCardNickName, "Card name does not match for account number: " + apiAccountNumber);
+                        }
+                    }
+                }
+
+                List<GetPersonAccountListResponseModel> apiAccountDetails = apiAccount.getValue();
+                List<String> webCurrencyAmounts = webAccount.getAmountsByCurrency();
+
+                if (apiAccountDetails.size() == webCurrencyAmounts.size()) {
+
+                    for (int i = 0; i < apiAccountDetails.size(); i++) {
+                        GetPersonAccountListResponseModel apiCardDetail = apiAccountDetails.get(i);
+                        String apiCardCurrency = apiCardDetail.getCurrency();
+                        Double apiCardBalance = Double.parseDouble(apiCardDetail.getAvailableBalance());
+
+                        String webCurrencyAmount = webCurrencyAmounts.get(i);
+
+                        String numericPart = webCurrencyAmount.replaceAll("[^0-9.]", "");
+                        String currencySymbol = webCurrencyAmount.replaceAll("[0-9. ]", "").trim();
+                        String removeComma = currencySymbol.replaceAll(",", "");
+                        String mappedCurrency = currencyMap.get(removeComma);
+
+                        if (apiCardCurrency.equals(mappedCurrency)) {
+                            double webAmount = Double.parseDouble(numericPart);
+                            Assert.assertEquals(apiCardBalance, webAmount);
+                        String a = "";
+                        }
+                    }
+                } else {
+                    softAssert.fail("Mismatched number of items for account: " + apiAccountNumber);
+                }
+
+                String webTotalAmount = webAccount.getTotalAmount();
+                if (webTotalAmount != null && !webTotalAmount.isEmpty()) {
+                    String numericPart = webTotalAmount.replaceAll("[^0-9.]", "");
+                    String currencySymbol = webTotalAmount.replaceAll("[0-9. ]", "").trim();
+                    String removeComma = currencySymbol.replaceAll(",", "");
+                    String webCurrency = currencyMap.get(removeComma);
+                    double webTotal = Double.parseDouble(numericPart);
+
+                    double apiTotal = 0.0;
+                    for (GetPersonAccountListResponseModel accountModel : apiAccountDetails) {
+                        if (accountModel.getAvailableBalanceEqu() != null) {
+                            double roundValue = Math.round(Double.parseDouble(accountModel.getAvailableBalanceEqu())*100.0)/100.0;
+                            apiTotal += roundValue;
+                        }
+                    }
+                    softAssert.assertEquals(webTotal, apiTotal,
+                            "Total amount doesn't match for account " + apiAccountNumber +
+                                    " with currency " + webCurrency +
+                                    ". Web total: " + webTotal + ", API total: " + apiTotal);
+                }
+            } else {
+                softAssert.fail("No matching web account found for API account: " + apiAccountNumber);
+            }
+        }
+
+        softAssert.assertAll();
+        return this;
+    }
+
+
 }

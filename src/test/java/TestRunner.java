@@ -19,8 +19,8 @@ public class TestRunner {
     public void LoginTest () {
 
         openPage(myCredo);
-        logInSteps.setUsername(bahruzUsername)
-                .setPassword(bahruzPassword)
+        logInSteps.setUsername(iloUsername)
+                .setPassword(iloPassword)
                 .clickSubmit()
                 .setOTP(OTP)
                 .clickApprove()
@@ -41,19 +41,20 @@ public class TestRunner {
 
     @Test (priority = 3)
     public void getCardInfo () {
-        accountStep.compareAccountInfo(getCardDetailSteps.collectCardInfo(), accountStep.getAccountList(), getcardList.getcardList());
         getCardDetailSteps.operationOnCard(OTP);
         getCardDetailSteps.checkFileExistence();
         getCardDetailSteps.deleteRequisiteFile ()
                             .assertDeleteRequisiteFileMethod ();
         getCardDetailSteps.downloadRequisite ()
                             .assertDownloadRequisiteMethod ();
-
+        getCardDetailSteps.moveToFirstPage ();
+        getCardDetailSteps.compareAccountInfo(getCardDetailSteps.collectCardInfo(), accountStep.getAccountList(), getcardList.getcardList())
+        .moveToFirstPage ();
     }
 
     @Test (priority = 4)
     public void moneyTransfer () {
-        moneyTransfer.moveToFirstPage ()
+        moneyTransfer//.moveToFirstPage ()
                     .getMaxAmountPAge();
         moneyTransfer.goToMaxAmountPage()
                     .moveToTransfer ()

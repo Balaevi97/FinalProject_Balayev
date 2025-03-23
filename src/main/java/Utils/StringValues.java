@@ -37,6 +37,7 @@ public class StringValues {
     public static Double accountBalanceAPI2 = 0.0;
 
     public static String transferCardAmountSymbol;
+    public static String transferCardAmountAmount;
 
     public static String receiverAccountForTransfer;
     public static Double receiverAccountPreviousAmount;

@@ -7,6 +7,7 @@ import Steps.APISteps.GetAccountList;
 import com.codeborne.selenide.*;
 import io.qameta.allure.Step;
 import org.testng.Assert;
+import org.testng.asserts.SoftAssert;
 
 import java.time.Duration;
 import java.util.*;
@@ -61,7 +62,6 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
             }
             getCardDetailSteps.next();
         }
-        System.out.println("maxAmountWeb is: " + maxAmountWeb +" and maxAmountPage is : " + maxAmountPage);
         return maxAmountPage;
     }
 
@@ -91,9 +91,15 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
     public String getSelectedCardNumber () {
         return selectedCardNumber.getText();
     }
+
+    @Step
+    public String getTransferCardAmount() {
+        return transferCardAmountAmount = selectedCardSymbol.shouldBe(visible, Duration.ofSeconds(10)).getText().replaceAll("[^a-zA-Z0-9.]", "");
+    }
+
     @Step
     public String getTransferCardCurrency() {
-        return transferCardAmountSymbol = selectedCardSymbol.shouldBe(visible, Duration.ofSeconds(10)).getText().replaceAll("[0-9.,\\s]", "");
+        return transferCardAmountSymbol = selectedCardSymbol.getText().replaceAll("[0-9.,\\s]", "");
     }
     @Step
     public MoneyTransferSteps openReceiverAccountList () {
@@ -201,9 +207,11 @@ return this;
 
     @Step
     public MoneyTransferSteps assertAccountBalanceAPI () {
-
-        Assert.assertEquals(accountBalanceAPI + calculateTransferAmount(),
-                getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol) ,"Amounts does not match");
+    SoftAssert softAssert = new SoftAssert();
+        softAssert.assertEquals(accountBalanceAPI + calculateTransferAmount(),
+                getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol) ,"Amounts does not match. Before transfer amount is " +
+                accountBalanceAPI + calculateTransferAmount() + " and after transfer amount is " +
+                getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol));
         return this;
     }
 
@@ -227,9 +235,7 @@ return this;
     }
 
     public MoneyTransferSteps getRenewalAccountAmount () {
-//        SelenideElement currencyToSelect = selectedAccount.filter(Condition.text(receiverAccountForTransfer))
-//                .first();
-//        currencyToSelect.click();
+
         try{
             SelenideElement currencyToSelect = selectedAccount.filter(Condition.text(receiverAccountForTransfer))
                     .first();

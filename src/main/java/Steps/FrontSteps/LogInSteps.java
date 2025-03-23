@@ -77,7 +77,6 @@ public class LogInSteps extends LogIn {
         char currencySymbol = currencyOnly.replaceAll("[0-9.]", "").trim().charAt(currencyOnly.length()-1);
 
         myMoneyCurrency = currencyMap.get(currencySymbol);
-        System.out.println(myMoneyCurrency);
          return this;
     }
     @Step
