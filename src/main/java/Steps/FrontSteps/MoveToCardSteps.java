@@ -21,7 +21,7 @@ public class MoveToCardSteps extends MoveToCard {
     public MoveToCardSteps openProdList () {
 
         for (SelenideElement product : loadPage) {
-            if (product.shouldBe(clickable, Duration.ofSeconds(10)).isDisplayed()) {
+            if (product.shouldBe(Condition.clickable, clickable, Condition.interactable).isDisplayed()) {
                 checkProdList.click();
                 break;
             }
@@ -31,12 +31,17 @@ public class MoveToCardSteps extends MoveToCard {
     }
     @Step
     public MoveToCardSteps moveToProduct() {
+        try {
+            while (moveToProduct.filter(Condition.clickable).isEmpty() &&
+                    moveToProduct.filter(Condition.clickable).isEmpty()) {
+                openProdList ();
+            }
 
-        if (moveToProduct.filter(Condition.clickable).isEmpty() &&
-                moveToProduct.filter(Condition.clickable).isEmpty()) {
-            openProdList ();
+            moveToProduct.first().click();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
-        moveToProduct.first().click();
+
         return this;
     }
 

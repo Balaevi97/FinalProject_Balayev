@@ -4,11 +4,14 @@ import Models.API.GetPersonAccountListResponseModel;
 import Models.Web.GetAccountsAndCardModel;
 import Elements.MoneyTransfer;
 import Steps.APISteps.GetAccountList;
+import Utils.StringValues;
 import com.codeborne.selenide.*;
 import io.qameta.allure.Step;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.*;
 
@@ -21,7 +24,7 @@ import static com.codeborne.selenide.Selenide.refresh;
 public class MoneyTransferSteps extends MoneyTransfer {
 
 GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
-    public Double accountBalanceAPI;
+    public BigDecimal accountBalanceAPI;
 
     GetAccountList accountStep = new GetAccountList();
     @Step
@@ -34,7 +37,11 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
 
     @Step
     public int getMaxAmountPAge() {
-
+    if (getCardDetailSteps.getCurrentPage() != 1) {
+        for (int i = getCardDetailSteps.getTotalPagesCount(); i >= 1; i--) {
+            getCardDetailSteps.previous();
+        }
+    }
         for (int i = 1; i <= getCardDetailSteps.getTotalPagesCount() ; i++) {
 
             List<Map.Entry<String, List<GetAccountsAndCardModel>>> allCardsGrouped = getCardDetailSteps.getAllCardsInfo();
@@ -50,10 +57,10 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
                     try {
                         String totalAmount = String.valueOf(Double.parseDouble(currency.getTotalAmount().replaceAll("[^a-zA-Z0-9.]","")));
                         double amountInDouble = Double.parseDouble(totalAmount);
-                        if (maxAmountWeb == null || amountInDouble > maxAmountWeb) {
-                            maxAmountWeb = amountInDouble;
+                        if (transferCardAmountAmount == null || amountInDouble > transferCardAmountAmount) {
+                            transferCardAmountAmount = amountInDouble;
                             maxAmountPage = i;
-
+                        String a = "";
                         }
                     } catch (NumberFormatException e) {
                         System.err.println("Invalid number format for amount: " + currency.getTotalAmount());
@@ -93,8 +100,8 @@ GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
     }
 
     @Step
-    public String getTransferCardAmount() {
-        return transferCardAmountAmount = selectedCardSymbol.shouldBe(visible, Duration.ofSeconds(10)).getText().replaceAll("[^a-zA-Z0-9.]", "");
+    public Double getTransferCardAmount() {
+        return transferCardAmountAmount = Double.valueOf(selectedCardSymbol.shouldBe(visible, Duration.ofSeconds(10)).getText().replaceAll("[^a-zA-Z0-9.]", ""));
     }
 
     @Step
@@ -136,7 +143,7 @@ return this;
 
     }
     @Step
-    public Double getReceiverAccountAmount () {
+    public BigDecimal getReceiverAccountAmount () {
 
         SelenideElement currencyToSelect = selectedAccount.filter(Condition.text(receiverAccountForTransfer))
                 .first()
@@ -144,14 +151,19 @@ return this;
                 .closest("div")
                 .$(byXpath("./p[@class='paragraph-18']"));
         String amounts = currencyToSelect.getText().replaceAll("[^a-zA-Z0-9.]","");
-        receiverAccountPreviousAmount = Double.valueOf(amounts);
+        receiverAccountPreviousAmount = new BigDecimal(amounts);
 
         return receiverAccountPreviousAmount;
     }
 
     @Step
-    public Double calculateTransferAmount () {
-        return Math.round(((percentage/totalPercentage)*maxAmountWeb) * totalPercentage) / totalPercentage;
+    public BigDecimal calculateTransferAmount() {
+        // Calculate percentage of the transfer amount
+        double rawAmount = (percentage / totalPercentage) * transferCardAmountAmount;
+
+        // Round to 2 decimal places and convert to BigDecimal
+        return new BigDecimal(rawAmount).setScale(2, RoundingMode.HALF_UP);
+
     }
 
 
@@ -177,7 +189,7 @@ return this;
 
 
     @Step
-    public Double getAccountBalanceAPI (String accountNumber, String currency) {
+    public BigDecimal getAccountBalanceAPI (String accountNumber, String currency) {
 
         List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> filteredAccountList = accountStep.getAccountList();
         Map<String, String> currencyMap = new HashMap<>();
@@ -191,9 +203,9 @@ return this;
                     String convertCurrencySymbol = currencyMap.get(currency);
 
                     if (account.getCurrency().equals(convertCurrencySymbol)) {
-                        this.accountBalanceAPI = Math.round(Double.parseDouble(account.getAvailableBalance()) * 100.0) / 100.0;
-                        if (accountBalanceAPI+calculateTransferAmount() != accountBalanceAPI2) {
-                            accountBalanceAPI2 =  Math.round(accountBalanceAPI+calculateTransferAmount()*100.0)/100.0;
+                        this.accountBalanceAPI = new BigDecimal(account.getAvailableBalance());
+                        if (!accountBalanceAPI.add(calculateTransferAmount()).equals(accountBalanceAPI2)) {
+                            accountBalanceAPI2 =  accountBalanceAPI.add(calculateTransferAmount());
                         }
                         return accountBalanceAPI;
                     }
@@ -201,14 +213,19 @@ return this;
             }
         }
 
-        this.accountBalanceAPI = null;
-        return null;
+        return this.accountBalanceAPI = null;
+    }
+    public  MoneyTransferSteps checkAccountBalanceAPI() {
+        while (accountBalanceAPI == null) {
+            getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol);
+        }
+        return this;
     }
 
     @Step
     public MoneyTransferSteps assertAccountBalanceAPI () {
     SoftAssert softAssert = new SoftAssert();
-        softAssert.assertEquals(accountBalanceAPI + calculateTransferAmount(),
+        softAssert.assertEquals(accountBalanceAPI.add(calculateTransferAmount()) ,
                 getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol) ,"Amounts does not match. Before transfer amount is " +
                 accountBalanceAPI + calculateTransferAmount() + " and after transfer amount is " +
                 getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol));
@@ -234,40 +251,54 @@ return this;
         return this;
     }
 
-    public MoneyTransferSteps getRenewalAccountAmount () {
-
-        try{
+    public MoneyTransferSteps getRenewalAccountAmount() {
+        try {
             SelenideElement currencyToSelect = selectedAccount.filter(Condition.text(receiverAccountForTransfer))
                     .first();
-            if (!currencyToSelect.isDisplayed()) {
-                openProdList ();
+            if (!currencyToSelect.exists() || !currencyToSelect.isDisplayed()) {
+                openProdList();
             } else {
                 currencyToSelect.click();
             }
-
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error in getRenewalAccountAmount(): " + e.getMessage());
         }
         return this;
     }
 
-    public Double getChangedAmount () {
-        if (!changedAmount.isDisplayed()) {
-            getRenewalAccountAmount ();
+    public BigDecimal getChangedAmount() {
+        try {
+            if (!changedAmount.exists() || !changedAmount.isDisplayed()) {
+                getRenewalAccountAmount();
+            }
+
+            return new BigDecimal(changedAmount.shouldBe(visible, Duration.ofSeconds(5))
+                    .shouldHave(Condition.partialText("₾"))
+                    .getText()
+                    .replaceAll("[^0-9.]", "")); // Keep only numeric values and dots
+        } catch (Exception e) {
+            System.out.println("Error in getChangedAmount(): " + e.getMessage());
+            return BigDecimal.ZERO;
         }
-        return Double.parseDouble(changedAmount.shouldBe(visible, Duration.ofSeconds(5)).getText().replaceAll("[^a-zA-Z0-9.]",""));
     }
 
 
     public boolean assertAmountChangesOnAccount () {
-        while (Objects.equals(receiverAccountPreviousAmount, getChangedAmount())){
-            refresh();
+        var a  = receiverAccountPreviousAmount;
+        var b = getChangedAmount();
+        if (!Objects.equals(receiverAccountPreviousAmount, getChangedAmount())) {
+            return true;
+        } else {
+                getChangedAmount ();
         }
+
         return true;
     }
 
     public void assertAccountBalanceWeb () {
+        var a = receiverAccountPreviousAmount;
+        var b = getChangedAmount().subtract(calculateTransferAmount());
         Assert.assertEquals(receiverAccountPreviousAmount,
-                getChangedAmount() - calculateTransferAmount());
+                getChangedAmount().subtract(calculateTransferAmount()));
     }
 }

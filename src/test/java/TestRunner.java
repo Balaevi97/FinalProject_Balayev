@@ -19,8 +19,8 @@ public class TestRunner {
     public void LoginTest () {
 
         openPage(myCredo);
-        logInSteps.setUsername(iloUsername)
-                .setPassword(iloPassword)
+        logInSteps.setUsername(bahruzUsername)
+                .setPassword(bahruzPassword)
                 .clickSubmit()
                 .setOTP(OTP)
                 .clickApprove()
@@ -68,6 +68,7 @@ public class TestRunner {
         moneyTransfer.setTransferAmount ()
                     .approvePayment ()
                     .closeMessageWindow ()
+                    .checkAccountBalanceAPI()
                     .assertAccountBalanceAPI ()
                     .clickProducts ()
                     .openProdList ()

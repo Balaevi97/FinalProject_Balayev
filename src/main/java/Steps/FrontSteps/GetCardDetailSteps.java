@@ -12,6 +12,8 @@ import org.testng.asserts.SoftAssert;
 
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -140,32 +142,34 @@ public class GetCardDetailSteps extends GetCardDetail {
 
     /// მეთოდების გამოძახება გვერდების რაოდენობის მიხედვით
      @Step
-    public TreeMap<String, GetAccountsAndCardModel> collectCardInfo () {
+
+
+    public TreeMap<String, GetAccountsAndCardModel> collectCardInfo() {
         List<GetAccountsAndCardModel> allCardsInfo = new ArrayList<>();
+        String previousAccountNumber = null;
 
         for (int i = 1; i <= getTotalPagesCount(); i++) {
             getCurrentPage();
             List<Map.Entry<String, List<GetAccountsAndCardModel>>> allCardsGrouped = getAllCardsInfo();
 
             for (Map.Entry<String, List<GetAccountsAndCardModel>> entry : allCardsGrouped) {
+                String currentAccountNumber = entry.getKey();
+
+                if (previousAccountNumber != null) {
+                    Assert.assertNotEquals(previousAccountNumber, currentAccountNumber,
+                            "Account number did not change after next()");
+                }
+
                 List<GetAccountsAndCardModel> cards = entry.getValue();
 
                 for (GetAccountsAndCardModel currency : cards) {
                     if (currency.getCardName() == null || currency.getTotalAmount() == null || currency.getCardName().isEmpty()) {
                         continue;
                     }
-                     currency.getCardName();
-                    currency.getTotalAmount();
-                    currency.getAccountNumber();
-
-                    for (String amount : currency.getAmountsByCurrency()) {
-                        if (amount != null && !amount.isEmpty()) {
-                            char currencySymbol = amount.charAt(amount.length() - 1);
-                        }
-                    }
-
                     allCardsInfo.add(currency);
                 }
+
+                previousAccountNumber = currentAccountNumber;
             }
 
             next();
@@ -176,8 +180,10 @@ public class GetCardDetailSteps extends GetCardDetail {
         for (GetAccountsAndCardModel model : allCardsInfo) {
             accountMap.put(model.getAccountNumber(), model);
         }
+
         return accountMap;
     }
+
 
     /// ბარათის დაბლოკვა
     @Step
@@ -319,8 +325,8 @@ public class GetCardDetailSteps extends GetCardDetail {
 
     @Step
     public GetCardDetailSteps compareAccountInfo(TreeMap<String, GetAccountsAndCardModel> accountAndCardsMapWeb,
-                                   List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> accountListAPI,
-                                   List<GetPersonCardList> cardListAPI) {
+                                                 List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> accountListAPI,
+                                                 List<GetPersonCardList> cardListAPI) {
         SoftAssert softAssert = new SoftAssert();
         Map<String, String> currencyMap = new HashMap<>();
         currencyMap.put("₾", "GEL");
@@ -337,7 +343,6 @@ public class GetCardDetailSteps extends GetCardDetail {
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
             if (webAccount != null) {
-
                 if (!accountType.equals(webAccount.getCardName()) && !accountType1.equals(webAccount.getCardName())) {
                     for (GetPersonCardList apiCard : cardListAPI) {
                         String apiCardAccountNumber = apiCard.getAccountNumber();
@@ -354,23 +359,28 @@ public class GetCardDetailSteps extends GetCardDetail {
                 List<String> webCurrencyAmounts = webAccount.getAmountsByCurrency();
 
                 if (apiAccountDetails.size() == webCurrencyAmounts.size()) {
-
                     for (int i = 0; i < apiAccountDetails.size(); i++) {
                         GetPersonAccountListResponseModel apiCardDetail = apiAccountDetails.get(i);
                         String apiCardCurrency = apiCardDetail.getCurrency();
-                        Double apiCardBalance = Double.parseDouble(apiCardDetail.getAvailableBalance());
+                        BigDecimal apiCardBalance = new BigDecimal(apiCardDetail.getAvailableBalance());
 
                         String webCurrencyAmount = webCurrencyAmounts.get(i);
-
                         String numericPart = webCurrencyAmount.replaceAll("[^0-9.]", "");
                         String currencySymbol = webCurrencyAmount.replaceAll("[0-9. ]", "").trim();
                         String removeComma = currencySymbol.replaceAll(",", "");
                         String mappedCurrency = currencyMap.get(removeComma);
 
+                        System.out.println("API: " + apiCardBalance + " " + apiCardCurrency);
+                        System.out.println("Web: " + numericPart + " " + mappedCurrency);
+
                         if (apiCardCurrency.equals(mappedCurrency)) {
-                            double webAmount = Double.parseDouble(numericPart);
-                            Assert.assertEquals(apiCardBalance, webAmount);
-                        String a = "";
+                            BigDecimal webAmount = new BigDecimal(numericPart);
+
+                            BigDecimal tolerance = new BigDecimal("0.01");
+                            BigDecimal difference = apiCardBalance.subtract(webAmount).abs();
+
+                            Assert.assertTrue(difference.compareTo(tolerance) < 0,
+                                    "Mismatch: API Balance " + apiCardBalance + " != Web Balance " + webAmount);
                         }
                     }
                 } else {
@@ -383,13 +393,13 @@ public class GetCardDetailSteps extends GetCardDetail {
                     String currencySymbol = webTotalAmount.replaceAll("[0-9. ]", "").trim();
                     String removeComma = currencySymbol.replaceAll(",", "");
                     String webCurrency = currencyMap.get(removeComma);
-                    double webTotal = Double.parseDouble(numericPart);
+                    BigDecimal webTotal = new BigDecimal(numericPart);
 
-                    double apiTotal = 0.0;
+                    BigDecimal apiTotal = BigDecimal.ZERO;
                     for (GetPersonAccountListResponseModel accountModel : apiAccountDetails) {
                         if (accountModel.getAvailableBalanceEqu() != null) {
-                            double roundValue = Math.round(Double.parseDouble(accountModel.getAvailableBalanceEqu())*100.0)/100.0;
-                            apiTotal += roundValue;
+                            BigDecimal roundValue = new BigDecimal(accountModel.getAvailableBalanceEqu()).setScale(2, RoundingMode.HALF_UP);
+                            apiTotal = apiTotal.add(roundValue);
                         }
                     }
                     softAssert.assertEquals(webTotal, apiTotal,

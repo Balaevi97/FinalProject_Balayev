@@ -24,6 +24,6 @@ public class MoneyTransfer {
     public SelenideElement products = $(byXpath("//p [text()='პროდუქტები']"));
     public ElementsCollection loadPage = $$(byXpath("//div[@class='header trigger']/p[contains(@class,'block-header-caps-20')]"));
     public SelenideElement checkProdList = $(byId("checkProdList"));
-    public SelenideElement changedAmount = $(byXpath("//p[@class='block-header-caps-18 white']"));
+    public SelenideElement changedAmount = $(byXpath("//p[@class='block-header-caps-14 white']"));
 
 }
