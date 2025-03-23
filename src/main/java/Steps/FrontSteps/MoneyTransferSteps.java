@@ -18,7 +18,7 @@ import java.util.*;
 import static Utils.StringValues.*;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byXpath;
-import static com.codeborne.selenide.Selenide.refresh;
+
 
 
 public class MoneyTransferSteps extends MoneyTransfer {

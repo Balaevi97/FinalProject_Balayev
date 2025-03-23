@@ -45,8 +45,16 @@ public class MoveToCardSteps extends MoveToCard {
         return this;
     }
 
+    public MoveToCardSteps assertNotOnSamePage () {
+        if (loadPage.first().isDisplayed()) {
+            openProdList ()
+            .moveToProduct();
+        }
+        return this;
+    }
+
     @Step
-    public boolean assertPage () {
+    public boolean assertIsOnRightPage () {
         Assert.assertTrue(assertPage.shouldBe(Condition.visible, Duration.ofSeconds(5)).getText().contains("ანგარიშის დეტალები"));
         return true;
     }

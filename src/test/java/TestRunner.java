@@ -36,7 +36,8 @@ public class TestRunner {
         moveToCardSteps.clickProducts()
                 .openProdList()
                 .moveToProduct()
-                .assertPage();
+                .assertNotOnSamePage()
+                .assertIsOnRightPage();
     }
 
     @Test (priority = 3)
@@ -60,6 +61,7 @@ public class TestRunner {
                     .moveToTransfer ()
                     .transferToOwnAccount ()
                     .getTransferCardCurrency();
+        moneyTransfer.getTransferCardAmount();
         moneyTransfer.openReceiverAccountList ()
                     .choseAccount();
         moneyTransfer.getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol);

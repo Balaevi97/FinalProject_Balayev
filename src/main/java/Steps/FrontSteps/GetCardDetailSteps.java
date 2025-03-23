@@ -24,6 +24,7 @@ import static com.codeborne.selenide.Condition.*;
 
 
 public class GetCardDetailSteps extends GetCardDetail {
+
     @Step
     public boolean checkFileExistence() {
         int timeout = 10000;
@@ -370,8 +371,8 @@ public class GetCardDetailSteps extends GetCardDetail {
                         String removeComma = currencySymbol.replaceAll(",", "");
                         String mappedCurrency = currencyMap.get(removeComma);
 
-                        System.out.println("API: " + apiCardBalance + " " + apiCardCurrency);
-                        System.out.println("Web: " + numericPart + " " + mappedCurrency);
+//                        System.out.println("API: " + apiCardBalance + " " + apiCardCurrency);
+//                        System.out.println("Web: " + numericPart + " " + mappedCurrency);
 
                         if (apiCardCurrency.equals(mappedCurrency)) {
                             BigDecimal webAmount = new BigDecimal(numericPart);
