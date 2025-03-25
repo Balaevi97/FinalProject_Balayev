@@ -4,11 +4,13 @@ import java.math.BigDecimal;
 
 public class StringValues {
     /// Users
-    public static String bahruzUsername = "bbalaevi97";
-    public static String bahruzPassword = "Credo@1234";
-    public static String iloUsername = "IILO01";
-    public static String iloPassword = "Aa123123";
-
+//    public static String bahruzUsername = "bbalaevi97";
+//    public static String bahruzPassword = "Credo@1234";
+//    public static String iloUsername = "IILO01";
+//    public static String iloPassword = "Aa123123";
+    public static String personId;
+    public static String username;
+    public static String password;
     /// Main page variables
     public static String token;
     public static String myMoney;

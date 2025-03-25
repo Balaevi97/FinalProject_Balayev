@@ -1,11 +1,16 @@
+
 import Steps.APISteps.GetCardList;
 import Steps.FrontSteps.*;
 import Steps.APISteps.GetAccountList;
 import org.testng.annotations.Test;
 
+import java.sql.SQLException;
+
 import static Setup.SelenIDESetUp.openPage;
 import static Utils.StringValues.*;
 import static Utils.URL.*;
+import static Utils.UserTaker.generateRandomUser;
+
 
 public class TestRunner {
     LogInSteps logInSteps = new LogInSteps();
@@ -15,12 +20,18 @@ public class TestRunner {
     GetAccountList accountStep = new GetAccountList();
     GetCardList getcardList = new GetCardList();
 
-    @Test (priority = 1)
-    public void LoginTest () {
+//    @Test
+//    public void test() throws SQLException {
+//
+//
+//    }
 
+    @Test (priority = 1)
+    public void LoginTest () throws SQLException {
+        generateRandomUser ();
         openPage(myCredo);
-        logInSteps.setUsername(bahruzUsername)
-                .setPassword(bahruzPassword)
+        logInSteps.setUsername(username)
+                .setPassword(password)
                 .clickSubmit()
                 .setOTP(OTP)
                 .clickApprove()
@@ -55,8 +66,7 @@ public class TestRunner {
 
     @Test (priority = 4)
     public void moneyTransfer () {
-        moneyTransfer//.moveToFirstPage ()
-                    .getMaxAmountPAge();
+        moneyTransfer.getMaxAmountPAge();
         moneyTransfer.goToMaxAmountPage()
                     .moveToTransfer ()
                     .transferToOwnAccount ()

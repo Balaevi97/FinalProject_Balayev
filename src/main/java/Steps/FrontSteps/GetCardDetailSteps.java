@@ -1,8 +1,8 @@
 package Steps.FrontSteps;
 
-import Models.API.GetPersonAccountListResponseModel;
-import Models.API.GetPersonCardList;
-import Models.Web.GetAccountsAndCardModel;
+import Models.ResponseModel.API.GetPersonAccountListResponseModel;
+import Models.ResponseModel.API.GetPersonCardListResponseModel;
+import Models.ResponseModel.Web.GetAccountsAndCardModel;
 import Elements.GetCardDetail;
 
 import com.codeborne.selenide.Configuration;
@@ -327,7 +327,7 @@ public class GetCardDetailSteps extends GetCardDetail {
     @Step
     public GetCardDetailSteps compareAccountInfo(TreeMap<String, GetAccountsAndCardModel> accountAndCardsMapWeb,
                                                  List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> accountListAPI,
-                                                 List<GetPersonCardList> cardListAPI) {
+                                                 List<GetPersonCardListResponseModel> cardListAPI) {
         SoftAssert softAssert = new SoftAssert();
         Map<String, String> currencyMap = new HashMap<>();
         currencyMap.put("₾", "GEL");
@@ -345,7 +345,7 @@ public class GetCardDetailSteps extends GetCardDetail {
 
             if (webAccount != null) {
                 if (!accountType.equals(webAccount.getCardName()) && !accountType1.equals(webAccount.getCardName())) {
-                    for (GetPersonCardList apiCard : cardListAPI) {
+                    for (GetPersonCardListResponseModel apiCard : cardListAPI) {
                         String apiCardAccountNumber = apiCard.getAccountNumber();
                         String apiCardNickName = apiCard.getCardNickName();
 
@@ -370,9 +370,6 @@ public class GetCardDetailSteps extends GetCardDetail {
                         String currencySymbol = webCurrencyAmount.replaceAll("[0-9. ]", "").trim();
                         String removeComma = currencySymbol.replaceAll(",", "");
                         String mappedCurrency = currencyMap.get(removeComma);
-
-//                        System.out.println("API: " + apiCardBalance + " " + apiCardCurrency);
-//                        System.out.println("Web: " + numericPart + " " + mappedCurrency);
 
                         if (apiCardCurrency.equals(mappedCurrency)) {
                             BigDecimal webAmount = new BigDecimal(numericPart);
@@ -416,6 +413,5 @@ public class GetCardDetailSteps extends GetCardDetail {
         softAssert.assertAll();
         return this;
     }
-
 
 }

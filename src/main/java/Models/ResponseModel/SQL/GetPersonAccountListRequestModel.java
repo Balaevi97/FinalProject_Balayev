@@ -1,4 +1,4 @@
-package Models.SQL;
+package Models.ResponseModel.SQL;
 
 import lombok.Data;
 

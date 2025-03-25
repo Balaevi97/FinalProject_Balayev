@@ -1,6 +1,6 @@
 package Steps.APISteps;
 
-import Models.API.GetMainPageTotalAmountResponseModel;
+import Models.ResponseModel.API.GetMainPageTotalAmountResponseModel;
 import Utils.StringValues;
 import io.restassured.response.Response;
 

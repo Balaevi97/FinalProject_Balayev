@@ -2,12 +2,14 @@ package Steps.FrontSteps;
 
 import Elements.LogIn;
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import org.testng.Assert;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import static Steps.APISteps.GetMainPageTotalAmount.getTotalAmount;
 import static Utils.StringValues.*;
@@ -46,7 +48,8 @@ public class LogInSteps extends LogIn {
     }
     @Step
     public LogInSteps removeEasyAuth () {
-        if (easyAuth.shouldBe(visible, Duration.ofSeconds(10)).isDisplayed()) {
+
+        if (easyAuth.is(exist, Duration.ofSeconds(5))) {
             easyAuth.click();
             closeEasyAuth.click();
         }

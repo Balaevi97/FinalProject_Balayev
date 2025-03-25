@@ -1,4 +1,4 @@
-package Models.Web;
+package Models.ResponseModel.Web;
 
 import lombok.*;
 

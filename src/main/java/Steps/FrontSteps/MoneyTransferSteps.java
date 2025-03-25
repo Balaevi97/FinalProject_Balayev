@@ -1,10 +1,9 @@
 package Steps.FrontSteps;
 
-import Models.API.GetPersonAccountListResponseModel;
-import Models.Web.GetAccountsAndCardModel;
+import Models.ResponseModel.API.GetPersonAccountListResponseModel;
+import Models.ResponseModel.Web.GetAccountsAndCardModel;
 import Elements.MoneyTransfer;
 import Steps.APISteps.GetAccountList;
-import Utils.StringValues;
 import com.codeborne.selenide.*;
 import io.qameta.allure.Step;
 import org.testng.Assert;
@@ -158,10 +157,7 @@ return this;
 
     @Step
     public BigDecimal calculateTransferAmount() {
-        // Calculate percentage of the transfer amount
         double rawAmount = (percentage / totalPercentage) * transferCardAmountAmount;
-
-        // Round to 2 decimal places and convert to BigDecimal
         return new BigDecimal(rawAmount).setScale(2, RoundingMode.HALF_UP);
 
     }

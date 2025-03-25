@@ -1,6 +1,6 @@
 package Steps.APISteps;
 
-import Models.API.GetPersonAccountListResponseModel;
+import Models.ResponseModel.API.GetPersonAccountListResponseModel;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 

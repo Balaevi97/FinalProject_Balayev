@@ -1,11 +1,11 @@
-package Models.API;
+package Models.ResponseModel.API;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GetPersonCardList {
+public class GetPersonCardListResponseModel {
     public String cardId;
     public String cardNumber;
     public String cardCurrency;
@@ -16,6 +16,5 @@ public class GetPersonCardList {
     public String cardExpireDate;
     public String accountNumber;
     public String applicationId;
-
 
 }
