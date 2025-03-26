@@ -1,20 +1,18 @@
 package Steps.APISteps;
 
-import Models.ResponseModel.API.GetMainPageTotalAmountResponseModel;
-import Utils.StringValues;
+import Models.ResponseModel.API.PostMainPageTotalAmountResponseModel;
 import io.restassured.response.Response;
 
 import static Calls.MyCredoGetAccountList.PostAccountListWithPersonID;
+import static Models.RequestModel.PostMainPageTotalAmountRequestModel.mainPageTotalAmount;
 
 
 public class GetMainPageTotalAmount {
 
     public static String getTotalAmount() {
-        StringValues stringValues = new StringValues();
-
-        Response response = PostAccountListWithPersonID(stringValues.mainPageTotalAmount);
-        GetMainPageTotalAmountResponseModel amount = response.jsonPath()
-                .getObject("data.customer", GetMainPageTotalAmountResponseModel.class);
+        Response response = PostAccountListWithPersonID(mainPageTotalAmount);
+        PostMainPageTotalAmountResponseModel amount = response.jsonPath()
+                .getObject("data.customer", PostMainPageTotalAmountResponseModel.class);
         return amount.getMyMoney();
     }
 }

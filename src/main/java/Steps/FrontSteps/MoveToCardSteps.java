@@ -27,7 +27,6 @@ public class MoveToCardSteps extends MoveToCard {
                 break;
             }
         }
-
         return this;
     }
     @Step
@@ -43,7 +42,6 @@ public class MoveToCardSteps extends MoveToCard {
         } catch (Exception e) {
            System.out.println(e.getMessage());
       }
-
         return this;
     }
 

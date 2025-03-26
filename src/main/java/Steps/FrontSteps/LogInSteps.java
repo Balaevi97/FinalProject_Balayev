@@ -2,22 +2,25 @@ package Steps.FrontSteps;
 
 import Elements.LogIn;
 import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.SelenideElement;
+
 import io.qameta.allure.Step;
 import org.testng.Assert;
-
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
+
 
 import static Steps.APISteps.GetMainPageTotalAmount.getTotalAmount;
-import static Utils.StringValues.*;
 import static com.codeborne.selenide.Condition.*;
 
 
 
 public class LogInSteps extends LogIn {
+
+    public static String token;
+    public static String myMoney;
+    public static String myMoneyCurrency;
+    public static String OTPCode = "1234";
 
     @Step
     public LogInSteps setUsername (String Username) {

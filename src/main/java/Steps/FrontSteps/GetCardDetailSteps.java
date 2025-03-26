@@ -1,14 +1,13 @@
 package Steps.FrontSteps;
 
-import Models.ResponseModel.API.GetPersonAccountListResponseModel;
-import Models.ResponseModel.API.GetPersonCardListResponseModel;
+import Models.ResponseModel.API.PostPersonAccountListResponseModel;
+import Models.ResponseModel.API.PostPersonCardListResponseModel;
 import Models.ResponseModel.Web.GetAccountsAndCardModel;
 import Elements.GetCardDetail;
 
 import com.codeborne.selenide.Configuration;
 import io.qameta.allure.Step;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
 
 
 import java.io.File;
@@ -18,12 +17,13 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static Utils.StringValues.accountType;
-import static Utils.StringValues.accountType1;
+import static Steps.APISteps.GetAccountList.accountType;
 import static com.codeborne.selenide.Condition.*;
 
 
 public class GetCardDetailSteps extends GetCardDetail {
+
+    public static String accountType1 = "Instant Visa Credit Card Digital";
 
     @Step
     public boolean checkFileExistence() {
@@ -113,7 +113,6 @@ public class GetCardDetailSteps extends GetCardDetail {
     }
 
     @Step
-    ///  მიმდინარე ბარათის გვერდის წამოღება
     public int getCurrentPage() {
         String text = pages.getText().trim();
         String[] parts = text.split("/");
@@ -123,7 +122,6 @@ public class GetCardDetailSteps extends GetCardDetail {
     }
 
     @Step
-    ///  ბარათების ჯამური გვერდის წამოღება
     public int getTotalPagesCount () {
         String text = pages.getText().trim();
         String[] parts = text.split("/");
@@ -131,7 +129,6 @@ public class GetCardDetailSteps extends GetCardDetail {
         return Integer.parseInt(parts[1]);
     }
 
-    /// მომდევნო ბარათზე გადასვლა
     @Step
     public void next () {
         nextProduct.click();
@@ -142,7 +139,6 @@ public class GetCardDetailSteps extends GetCardDetail {
         previousProduct.click();
     }
 
-    /// მეთოდების გამოძახება გვერდების რაოდენობის მიხედვით
      @Step
 
 
@@ -187,7 +183,6 @@ public class GetCardDetailSteps extends GetCardDetail {
     }
 
 
-    /// ბარათის დაბლოკვა
     @Step
     public Boolean cardBlockButtonAssert () {
         Assert.assertTrue(cardBlock.shouldBe(visible, Duration.ofSeconds(15)).isDisplayed());
@@ -235,7 +230,6 @@ public class GetCardDetailSteps extends GetCardDetail {
     }
 
 
-    ///  პინის აღდგენა
     @Step
     public GetCardDetailSteps pinResetStep () {
         pinReset.click();
@@ -327,15 +321,14 @@ public class GetCardDetailSteps extends GetCardDetail {
 
     @Step
     public GetCardDetailSteps compareAccountInfo(TreeMap<String, GetAccountsAndCardModel> accountAndCardsMapWeb,
-                                                 List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> accountListAPI,
-                                                 List<GetPersonCardListResponseModel> cardListAPI) {
-      //  SoftAssert softAssert = new SoftAssert();
+                                                 List<Map.Entry<String, List<PostPersonAccountListResponseModel>>> accountListAPI,
+                                                 List<PostPersonCardListResponseModel> cardListAPI) {
         Map<String, String> currencyMap = new HashMap<>();
         currencyMap.put("₾", "GEL");
         currencyMap.put("$", "USD");
         currencyMap.put("€", "EUR");
 
-        for (Map.Entry<String, List<GetPersonAccountListResponseModel>> apiAccount : accountListAPI) {
+        for (Map.Entry<String, List<PostPersonAccountListResponseModel>> apiAccount : accountListAPI) {
             String apiAccountNumber = apiAccount.getKey();
 
             GetAccountsAndCardModel webAccount = accountAndCardsMapWeb.get(apiAccountNumber);
@@ -346,7 +339,7 @@ public class GetCardDetailSteps extends GetCardDetail {
 
             if (webAccount != null) {
                 if (!accountType.equals(webAccount.getCardName()) && !accountType1.equals(webAccount.getCardName())) {
-                    for (GetPersonCardListResponseModel apiCard : cardListAPI) {
+                    for (PostPersonCardListResponseModel apiCard : cardListAPI) {
                         String apiCardAccountNumber = apiCard.getAccountNumber();
                         String apiCardNickName = apiCard.getCardNickName();
 
@@ -357,12 +350,12 @@ public class GetCardDetailSteps extends GetCardDetail {
                     }
                 }
 
-                List<GetPersonAccountListResponseModel> apiAccountDetails = apiAccount.getValue();
+                List<PostPersonAccountListResponseModel> apiAccountDetails = apiAccount.getValue();
                 List<String> webCurrencyAmounts = webAccount.getAmountsByCurrency();
 
                 if (apiAccountDetails.size() == webCurrencyAmounts.size()) {
                     for (int i = 0; i < apiAccountDetails.size(); i++) {
-                        GetPersonAccountListResponseModel apiCardDetail = apiAccountDetails.get(i);
+                        PostPersonAccountListResponseModel apiCardDetail = apiAccountDetails.get(i);
                         String apiCardCurrency = apiCardDetail.getCurrency();
                         BigDecimal apiCardBalance = new BigDecimal(apiCardDetail.getAvailableBalance());
 
@@ -395,7 +388,7 @@ public class GetCardDetailSteps extends GetCardDetail {
                     BigDecimal webTotal = new BigDecimal(numericPart);
 
                     BigDecimal apiTotal = BigDecimal.ZERO;
-                    for (GetPersonAccountListResponseModel accountModel : apiAccountDetails) {
+                    for (PostPersonAccountListResponseModel accountModel : apiAccountDetails) {
                         if (accountModel.getAvailableBalanceEqu() != null) {
                             BigDecimal roundValue = new BigDecimal(accountModel.getAvailableBalanceEqu()).setScale(2, RoundingMode.HALF_UP);
                             apiTotal = apiTotal.add(roundValue);
@@ -410,8 +403,6 @@ public class GetCardDetailSteps extends GetCardDetail {
                 Assert.fail("No matching web account found for API account: " + apiAccountNumber);
             }
         }
-
-     //   softAssert.assertAll();
         return this;
     }
 

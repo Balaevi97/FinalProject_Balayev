@@ -1,6 +1,6 @@
 package Steps.APISteps;
 
-import Models.ResponseModel.API.GetPersonCardListResponseModel;
+import Models.ResponseModel.API.PostPersonCardListResponseModel;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 
@@ -8,20 +8,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static Calls.MyCredoGetAccountList.PostAccountListWithPersonID;
-import static Utils.StringValues.cardQuery;
+import static Models.RequestModel.PostPersonCardListRequestModel.cardQuery;
 
 public class GetCardList {
 
     @Step
-    public List<GetPersonCardListResponseModel> getcardList() {
+    public List<PostPersonCardListResponseModel> getcardList() {
 
         Response response = PostAccountListWithPersonID(cardQuery);
-        List<GetPersonCardListResponseModel> cards = response.jsonPath()
-                .getList("data.cards", GetPersonCardListResponseModel.class);
+        List<PostPersonCardListResponseModel> cards = response.jsonPath()
+                .getList("data.cards", PostPersonCardListResponseModel.class);
 
         return cards.stream()
                 .collect(Collectors.toMap(
-                        GetPersonCardListResponseModel::getAccountNumber, card -> card,
+                        PostPersonCardListResponseModel::getAccountNumber, card -> card,
                         (existing, replacement) -> existing))
                 .values()
                 .stream()

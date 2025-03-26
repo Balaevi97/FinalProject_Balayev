@@ -1,14 +1,12 @@
 package Steps.FrontSteps;
 
-import Models.ResponseModel.API.GetPersonAccountListResponseModel;
+import Models.ResponseModel.API.PostPersonAccountListResponseModel;
 import Models.ResponseModel.Web.GetAccountsAndCardModel;
 import Elements.MoneyTransfer;
 import Steps.APISteps.GetAccountList;
 import com.codeborne.selenide.*;
 import io.qameta.allure.Step;
-import org.openqa.selenium.Keys;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -23,18 +21,26 @@ import static com.codeborne.selenide.Selectors.byXpath;
 
 public class MoneyTransferSteps extends MoneyTransfer {
 
+    public static int maxAmountPage ;
+    public static String transferCardAmountSymbol;
+    public static Double transferCardAmountAmount;
+
+
+    public static String receiverAccountForTransfer;
+    public BigDecimal receiverAccountPreviousAmountWeb;
+    public BigDecimal receiverAccountAfterAmountWeb =  BigDecimal.ZERO;
+
     public BigDecimal accountBalancePreviousAPI = BigDecimal.ZERO;
     public BigDecimal accountBalanceAfterAPI = BigDecimal.ZERO;
     public BigDecimal calculatedAmountForAssertAPI = BigDecimal.ZERO;
 
+
+    public static Double percentage = 15.0;
+    public static Double totalPercentage = 100.0;
     public BigDecimal amountForPayment = BigDecimal.ZERO;
 
-    public BigDecimal receiverAccountPreviousAmountWeb;
-    public BigDecimal receiverAccountAfterAmountWeb =  BigDecimal.ZERO;
 
-    SoftAssert softAssert = new SoftAssert();
     GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
-
 
     GetAccountList accountStep = new GetAccountList();
     @Step
@@ -70,7 +76,6 @@ public class MoneyTransferSteps extends MoneyTransfer {
                         if (transferCardAmountAmount == null || amountInDouble > transferCardAmountAmount) {
                             transferCardAmountAmount = amountInDouble;
                             maxAmountPage = i;
-                        String a = "";
                         }
                     } catch (NumberFormatException e) {
                         System.err.println("Invalid number format for amount: " + currency.getTotalAmount());
@@ -128,19 +133,29 @@ public class MoneyTransferSteps extends MoneyTransfer {
     public List<String> getCard_AccountList() {
         return card_AccountList.texts();
     }
+
+    public List<String> getCard_AccountListName() {
+
+        return accountAndCardNames.texts();
+    }
+
     @Step
     public MoneyTransferSteps choseAccount() {
         List<String> accountList = getCard_AccountList();
         String selectedCard = getSelectedCardNumber();
+        List<String> cardNames = getCard_AccountListName();
 
-        for (String account : accountList) {
-            if (!account.equals(selectedCard)) {
+        for (int i = 0; i < accountList.size(); i++) {
+            String account = accountList.get(i);
+            String cardName = cardNames.get(i);
+
+            if (!account.equals(selectedCard) && !cardName.trim().equals("შემნახველი")) {
                 receiverAccountForTransfer = account;
-                card_AccountList.get(accountList.indexOf(account)).click();
+                card_AccountList.get(i).click();
                 break;
             }
         }
-return this;
+        return this;
     }
 
     @Step
@@ -204,7 +219,7 @@ return this;
     @Step
     public BigDecimal getAccountBalanceAPI(String accountNumber, String currency, boolean isFirstCapture) {
 
-        List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> filteredAccountList = accountStep.getAccountList();
+        List<Map.Entry<String, List<PostPersonAccountListResponseModel>>> filteredAccountList = accountStep.getAccountList();
 
         if (filteredAccountList == null || filteredAccountList.isEmpty()) {
             System.out.println("Error: Account list is empty or null");
@@ -218,10 +233,10 @@ return this;
 
         String convertCurrencySymbol = currencyMap.get(currency);
 
-        for (Map.Entry<String, List<GetPersonAccountListResponseModel>> entry : filteredAccountList) {
+        for (Map.Entry<String, List<PostPersonAccountListResponseModel>> entry : filteredAccountList) {
 
             if (entry.getKey().equals(accountNumber)) {
-                for (GetPersonAccountListResponseModel account : entry.getValue()) {
+                for (PostPersonAccountListResponseModel account : entry.getValue()) {
 
                     if (account.getCurrency().equals(convertCurrencySymbol)) {
                         BigDecimal currentBalance = new BigDecimal(account.getAvailableBalance());
@@ -248,6 +263,10 @@ return this;
 
     @Step
     public MoneyTransferSteps assertAccountBalanceAPI () {
+        System.out.println("მდე: " + accountBalancePreviousAPI);
+        System.out.println("ნამატი: " +amountForPayment);
+        System.out.println("შემდეგ: " + calculatedAmountForAssertAPI);
+        System.out.println("ანგარიში: " + receiverAccountForTransfer);
         Assert.assertEquals(accountBalancePreviousAPI , calculatedAmountForAssertAPI ,"Amounts does not match");
         return this;
     }
@@ -309,7 +328,6 @@ return this;
 
 
     public void assertAccountBalanceWeb () {
-
         Assert.assertEquals(receiverAccountAfterAmountWeb, getChangedAmount());
     }
 }

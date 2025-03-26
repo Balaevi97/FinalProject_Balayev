@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GetPersonCardListResponseModel {
+public class PostPersonCardListResponseModel {
     public String cardId;
     public String cardNumber;
     public String cardCurrency;

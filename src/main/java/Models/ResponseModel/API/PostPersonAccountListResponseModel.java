@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GetPersonAccountListResponseModel {
+public class PostPersonAccountListResponseModel {
 
     public String accountItemId;
     public String accountId;

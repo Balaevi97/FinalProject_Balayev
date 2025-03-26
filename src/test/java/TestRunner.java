@@ -7,9 +7,13 @@ import org.testng.annotations.Test;
 import java.sql.SQLException;
 
 import static Setup.SelenIDESetUp.openPage;
+
+import static Steps.FrontSteps.LogInSteps.OTPCode;
+import static Steps.FrontSteps.MoneyTransferSteps.receiverAccountForTransfer;
+import static Steps.FrontSteps.MoneyTransferSteps.transferCardAmountSymbol;
 import static Utils.StringValues.*;
 import static Utils.URL.*;
-import static Utils.UserTaker.generateRandomUser;
+import static Utils.UserTaker.*;
 
 
 public class TestRunner {
@@ -20,20 +24,15 @@ public class TestRunner {
     GetAccountList accountStep = new GetAccountList();
     GetCardList getcardList = new GetCardList();
 
-//    @Test
-//    public void test() throws SQLException {
-//
-//        System.out.println(getUserLoginList());
-//    }
 
     @Test (priority = 1)
     public void LoginTest () throws SQLException {
         generateRandomUser ();
         openPage(myCredo);
-        logInSteps.setUsername(username)
-                .setPassword(password)
+        logInSteps.setUsername("Ttestik")
+                .setPassword("Credo@1234")
                 .clickSubmit()
-                .setOTP(OTP)
+                .setOTP(OTPCode)
                 .clickApprove()
                 .removeEasyAuthWindow()
                 .removeContinueProcessWindow()
@@ -54,7 +53,7 @@ public class TestRunner {
 
     @Test (priority = 3)
     public void getCardInfo () {
-        getCardDetailSteps.operationOnCard(OTP);
+        getCardDetailSteps.operationOnCard(OTPCode);
         getCardDetailSteps.checkFileExistence();
         getCardDetailSteps.deleteRequisiteFile ()
                             .assertDeleteRequisiteFileMethod ();
@@ -67,7 +66,8 @@ public class TestRunner {
 
     @Test (priority = 4)
     public void moneyTransfer () {
-        moneyTransfer.getMaxAmountPAge();
+        moneyTransfer.moveToFirstPage ()
+                    .getMaxAmountPAge();
         moneyTransfer.goToMaxAmountPage()
                     .moveToTransfer ()
                     .transferToOwnAccount ()

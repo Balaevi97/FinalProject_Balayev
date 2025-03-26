@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GetMainPageTotalAmountResponseModel {
+public class PostMainPageTotalAmountResponseModel {
     public String myMoney;
 }
