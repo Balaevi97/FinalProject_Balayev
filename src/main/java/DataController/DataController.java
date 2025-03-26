@@ -138,24 +138,23 @@ public class DataController {
 
     public static List<GetUserLoginListRequestModel> getUserLoginList() throws SQLException {
 
-        List<GetUserLoginListRequestModel> getSMSRequestList = userLoginList(DataController.getUserList);
+        List<GetUserLoginListRequestModel> getUserLoginList = userLoginList(DataController.getUserList);
 
         StringBuilder data = new StringBuilder();
 
-        for (GetUserLoginListRequestModel model : getSMSRequestList) {
-            // Concatenate relevant fields to the string (for example, username and password)
+        for (GetUserLoginListRequestModel model : getUserLoginList) {
+
             data.append("ExternalId: ").append(model.getExternalId())
                     .append(", PersonalNumber: ").append(model.getPersonalNumber())
                     .append(", FirstName: ").append(model.getFirstName())
                     .append(", LastName: ").append(model.getLastName())
                     .append(", Login: ").append(model.getLogin())
                     .append(", Password: ").append(model.getPassword())
-                    .append("\n");  // New line between entries
+                    .append("\n");
         }
 
-        System.out.println(data.toString());  // Print data for debugging
 
-        return getSMSRequestList;  // Return the original list
+        return getUserLoginList;
     }
 
 

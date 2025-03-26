@@ -44,13 +44,14 @@ public class GetCardDetailSteps extends GetCardDetail {
 
     @Step
     public GetCardDetailSteps deleteRequisiteFile () {
-        File Requisites = new File(Configuration.downloadsFolder);
+        File Requisites = new File(Configuration.downloadsFolder).getAbsoluteFile();
         File[] invoiceFiles = Requisites.listFiles((dir, name) -> name.startsWith("Requisites"));
         if (checkFileExistence()) {
 
             assert invoiceFiles != null;
             for (File file : invoiceFiles) {
                 boolean deleted = file.delete();
+                System.out.println(deleted);
             }
         }
         return this;
@@ -328,7 +329,7 @@ public class GetCardDetailSteps extends GetCardDetail {
     public GetCardDetailSteps compareAccountInfo(TreeMap<String, GetAccountsAndCardModel> accountAndCardsMapWeb,
                                                  List<Map.Entry<String, List<GetPersonAccountListResponseModel>>> accountListAPI,
                                                  List<GetPersonCardListResponseModel> cardListAPI) {
-        SoftAssert softAssert = new SoftAssert();
+      //  SoftAssert softAssert = new SoftAssert();
         Map<String, String> currencyMap = new HashMap<>();
         currencyMap.put("₾", "GEL");
         currencyMap.put("$", "USD");
@@ -382,7 +383,7 @@ public class GetCardDetailSteps extends GetCardDetail {
                         }
                     }
                 } else {
-                    softAssert.fail("Mismatched number of items for account: " + apiAccountNumber);
+                    Assert.fail("Mismatched number of items for account: " + apiAccountNumber);
                 }
 
                 String webTotalAmount = webAccount.getTotalAmount();
@@ -400,17 +401,17 @@ public class GetCardDetailSteps extends GetCardDetail {
                             apiTotal = apiTotal.add(roundValue);
                         }
                     }
-                    softAssert.assertEquals(webTotal, apiTotal,
+                    Assert.assertEquals(webTotal, apiTotal,
                             "Total amount doesn't match for account " + apiAccountNumber +
                                     " with currency " + webCurrency +
                                     ". Web total: " + webTotal + ", API total: " + apiTotal);
                 }
             } else {
-                softAssert.fail("No matching web account found for API account: " + apiAccountNumber);
+                Assert.fail("No matching web account found for API account: " + apiAccountNumber);
             }
         }
 
-        softAssert.assertAll();
+     //   softAssert.assertAll();
         return this;
     }
 

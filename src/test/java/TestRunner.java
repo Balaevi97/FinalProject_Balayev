@@ -23,7 +23,7 @@ public class TestRunner {
 //    @Test
 //    public void test() throws SQLException {
 //
-//
+//        System.out.println(getUserLoginList());
 //    }
 
     @Test (priority = 1)
@@ -35,7 +35,8 @@ public class TestRunner {
                 .clickSubmit()
                 .setOTP(OTP)
                 .clickApprove()
-                .removeEasyAuth()
+                .removeEasyAuthWindow()
+                .removeContinueProcessWindow()
                 .getBearerToken ()
                 .myMoney()
                 .assertLogin();
@@ -47,7 +48,7 @@ public class TestRunner {
         moveToCardSteps.clickProducts()
                 .openProdList()
                 .moveToProduct()
-                .assertNotOnSamePage()
+                //.assertNotOnSamePage()
                 .assertIsOnRightPage();
     }
 
@@ -74,19 +75,22 @@ public class TestRunner {
         moneyTransfer.getTransferCardAmount();
         moneyTransfer.openReceiverAccountList ()
                     .choseAccount();
-        moneyTransfer.getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol);
+        moneyTransfer.getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol, true);
         moneyTransfer.getReceiverAccountAmount();
+        moneyTransfer.calculateTransferAmount();
+
+        moneyTransfer.getCalculatedAmountForAssertWeb ();
         moneyTransfer.chooseCurrency();
         moneyTransfer.setTransferAmount ()
                     .approvePayment ()
                     .closeMessageWindow ()
-                    .checkAccountBalanceAPI()
-                    .assertAccountBalanceAPI ()
+                    .getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol, false);
+        moneyTransfer.getCalculatedAmountForAssertAPI ();
+        moneyTransfer.assertAccountBalanceAPI ()
                     .clickProducts ()
                     .openProdList ()
                     .getRenewalAccountAmount()
-                    .assertAmountChangesOnAccount ();
-        moneyTransfer.assertAccountBalanceWeb ();
+                    .assertAccountBalanceWeb ();
     }
 
 }

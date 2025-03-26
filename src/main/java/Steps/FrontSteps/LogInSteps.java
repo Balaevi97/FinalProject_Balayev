@@ -47,14 +47,26 @@ public class LogInSteps extends LogIn {
         return this;
     }
     @Step
-    public LogInSteps removeEasyAuth () {
+    public LogInSteps removeEasyAuthWindow () {
 
         if (easyAuth.is(exist, Duration.ofSeconds(5))) {
             easyAuth.click();
-            closeEasyAuth.click();
+            closePopupWindow.click();
         }
+
         return this;
     }
+
+    public LogInSteps removeContinueProcessWindow () {
+
+        if (continueProcess.is(exist, Duration.ofSeconds(5))) {
+            continueProcess.click();
+            closePopupWindow.click();
+        }
+
+        return this;
+    }
+
     @Step
     public LogInSteps getBearerToken() {
         String fullToken = Selenide.executeJavaScript("return sessionStorage.getItem('token');");

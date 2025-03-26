@@ -38,13 +38,13 @@ public class StringValues {
     public static Double maxAmountWeb;
     public static int maxAmountPage ;
 
-    public static BigDecimal accountBalanceAPI2;
+
 
     public static String transferCardAmountSymbol;
     public static Double transferCardAmountAmount;
 
     public static String receiverAccountForTransfer;
-    public static BigDecimal receiverAccountPreviousAmount;
+
 
     public static Double percentage = 15.0;
     public static Double totalPercentage = 100.0;
