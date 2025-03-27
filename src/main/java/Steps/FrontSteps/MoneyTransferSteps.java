@@ -13,7 +13,6 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.*;
 
-import static Utils.StringValues.*;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byXpath;
 

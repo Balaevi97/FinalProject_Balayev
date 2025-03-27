@@ -3,7 +3,6 @@ package Utils;
 import Models.RequestModel.GetUserLoginListRequestModel;
 import io.qameta.allure.Step;
 
-import static Utils.StringValues.*;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Random;
@@ -24,7 +23,7 @@ public class UserTaker {
         personId = userInfo.getExternalId();
         username = userInfo.getLogin();
         password = userInfo.getPassword();
-        System.out.println("კლიენტის პერსონ აიდი არის: " + personId + " მომხმარებლის სახელი: " + username + " პაროლი არის: " + password);
+        System.out.println("personId: " + personId + " username: " + username + " password: " + password);
 
     }
 

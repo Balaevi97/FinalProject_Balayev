@@ -11,7 +11,6 @@ import static Setup.SelenIDESetUp.openPage;
 import static Steps.FrontSteps.LogInSteps.OTPCode;
 import static Steps.FrontSteps.MoneyTransferSteps.receiverAccountForTransfer;
 import static Steps.FrontSteps.MoneyTransferSteps.transferCardAmountSymbol;
-import static Utils.StringValues.*;
 import static Utils.URL.*;
 import static Utils.UserTaker.*;
 
