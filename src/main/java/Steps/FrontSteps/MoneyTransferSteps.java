@@ -367,7 +367,25 @@ public class MoneyTransferSteps extends MoneyTransfer {
     }
 
 
-    public void assertAccountBalanceWeb () {
+    public MoneyTransferSteps assertAccountBalanceWeb () {
         Assert.assertEquals(receiverAccountAfterAmountWeb, getChangedAmount());
+        return this;
+    }
+
+    public void  anyQuestions () {
+        String[] anyQuestions = {
+                "     █████╗ ███╗   ██╗██╗   ██╗     ██████╗ ██╗   ██╗███████╗███████╗████████╗██╗ ██████╗ ███╗   ██╗███████╗   ███████╗  ",
+                "    ██╔══██╗████╗  ██║██║   ██║    ██╔═══██╗██║   ██║██╔════╝██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝        ██╔  ",
+                "    ███████║██╔██╗ ██║██║   ██║    ██║   ██║██║   ██║█████╗  ███████╗   ██║   ██║██║   ██║██╔██╗ ██║███████╗   ████ ██╔  ",
+                "    ██╔══██║██║╚██╗██║╚██████╔╝    ██║▄▄ ██║██║   ██║██╔══╝  ╚════██║   ██║   ██║██║   ██║██║╚██╗██║╚════██║   ██╔       ",
+                "    ██║  ██║██║ ╚████║ ╚═██══╝     ╚██████╔╝╚██████╔╝███████╗███████║   ██║   ██║╚██████╔╝██║ ╚████║███████║             ",
+                "    ╚═╝  ╚═╝╚═╝  ╚═══╝   ██║        ╚══▀▀═╝  ╚═════╝ ╚══════╝╚══════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝   ██╔       ",
+                "                                                                                                                         ",
+                "                                                                                                                         "
+        };
+
+        for (String line : anyQuestions) {
+            System.out.println(line);
+        }
     }
 }

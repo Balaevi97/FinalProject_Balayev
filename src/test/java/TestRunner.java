@@ -88,7 +88,8 @@ public class TestRunner {
                     .openProdList ()
                     .getRenewalAccountAmount()
                     .checkIfAmountChanged ();
-        moneyTransfer.assertAccountBalanceWeb ();
+        moneyTransfer.assertAccountBalanceWeb ()
+                    .anyQuestions ();
     }
 
 }
