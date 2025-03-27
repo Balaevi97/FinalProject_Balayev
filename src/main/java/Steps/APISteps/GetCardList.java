@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static Calls.MyCredoGetAccountList.PostAccountListWithPersonID;
-import static Models.RequestModel.PostPersonCardListRequestModel.cardQuery;
+import static Models.RequestModel.API.PostPersonCardListRequestModel.cardQuery;
 
 public class GetCardList {
 

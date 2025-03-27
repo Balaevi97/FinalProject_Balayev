@@ -1,6 +1,6 @@
-package Models.RequestModel;
+package Models.RequestModel.API;
 
-import static Steps.FrontSteps.LogInSteps.myMoneyCurrency;
+import static Models.RequestModel.Web.LogInRequestModel.myMoneyCurrency;
 
 public class PostMainPageTotalAmountRequestModel {
 

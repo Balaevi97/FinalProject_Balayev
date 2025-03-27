@@ -6,11 +6,11 @@ import org.testng.annotations.Test;
 
 import java.sql.SQLException;
 
+import static Models.RequestModel.Web.LogInRequestModel.*;
+import static Models.RequestModel.Web.MoneyTransferRequestModel.*;
 import static Setup.SelenIDESetUp.openPage;
 
-import static Steps.FrontSteps.LogInSteps.OTPCode;
-import static Steps.FrontSteps.MoneyTransferSteps.receiverAccountForTransfer;
-import static Steps.FrontSteps.MoneyTransferSteps.transferCardAmountSymbol;
+
 import static Utils.URL.*;
 import static Utils.UserTaker.*;
 
@@ -44,9 +44,9 @@ public class TestRunner {
     @Test (priority = 2)
     public void moveToCardSteps () {
         moveToCardSteps.clickProducts()
-                .openProdList()
-                .moveToProduct()
-                .assertIsOnRightPage();
+                        .openProdList()
+                        .moveToProduct()
+                        .assertIsOnRightPage();
     }
 
     @Test (priority = 3)
@@ -59,7 +59,7 @@ public class TestRunner {
                             .assertDownloadRequisiteMethod ();
         getCardDetailSteps.moveToFirstPage ();
         getCardDetailSteps.compareAccountInfo(getCardDetailSteps.collectCardInfo(), accountStep.getAccountList(), getcardList.getcardList())
-        .moveToFirstPage ();
+                            .moveToFirstPage ();
     }
 
     @Test (priority = 4)
@@ -81,14 +81,14 @@ public class TestRunner {
         moneyTransfer.setTransferAmount ()
                     .approvePayment ()
                     .closeMessageWindow ();
-
         moneyTransfer.getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol, false);
         moneyTransfer.getCalculatedAmountForAssertAPI ();
         moneyTransfer.assertAccountBalanceAPI ()
                     .clickProducts ()
                     .openProdList ()
                     .getRenewalAccountAmount()
-                    .assertAccountBalanceWeb ();
+                    .checkIfAmountChanged ();
+        moneyTransfer.assertAccountBalanceWeb ();
     }
 
 }

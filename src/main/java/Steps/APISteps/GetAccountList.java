@@ -7,7 +7,7 @@ import io.restassured.response.Response;
 import java.util.*;
 
 import static Calls.MyCredoGetAccountList.PostAccountListWithPersonID;
-import static Models.RequestModel.PostPersonAccountListRequestModel.accountQuery;
+import static Models.RequestModel.API.PostPersonAccountListRequestModel.accountQuery;
 
 public class GetAccountList {
     public static String accountType = "მიმდინარე";

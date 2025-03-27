@@ -13,11 +13,13 @@ import static com.codeborne.selenide.Condition.exist;
 
 
 public class MoveToCardSteps extends MoveToCard {
+
     @Step
     public MoveToCardSteps clickProducts () {
         products.click();
         return this;
     }
+
     @Step
     public MoveToCardSteps openProdList () {
 
@@ -29,14 +31,7 @@ public class MoveToCardSteps extends MoveToCard {
         return this;
     }
 
-//        @Step
-//    public MoveToCardSteps moveToProduct() {
-//            moveToProduct.first().shouldBe(clickable, Duration.ofSeconds(3)).click();
-//        return this;
-//        }
-//assertIsOnRightPage
     @Step
-
     public MoveToCardSteps moveToProduct() {
         if (moveToProduct.first().is(clickable, Duration.ofSeconds(2))) {
             moveToProduct.first().click();
@@ -59,6 +54,7 @@ public class MoveToCardSteps extends MoveToCard {
         return this;
     }
 
+    @Step
     public boolean assertIsOnRightPage() {
         Assert.assertTrue(assertPage.getText().contains("ანგარიშის დეტალები"));
         return true;

@@ -1,6 +1,6 @@
 package DataController;
 
-import Models.RequestModel.GetUserLoginListRequestModel;
+import Models.RequestModel.API.GetUserLoginListRequestModel;
 import SQLDatabaseAccess.SQLDatabaseAccess;
 
 import java.sql.Connection;

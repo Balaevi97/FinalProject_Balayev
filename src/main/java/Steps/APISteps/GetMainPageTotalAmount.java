@@ -4,7 +4,7 @@ import Models.ResponseModel.API.PostMainPageTotalAmountResponseModel;
 import io.restassured.response.Response;
 
 import static Calls.MyCredoGetAccountList.PostAccountListWithPersonID;
-import static Models.RequestModel.PostMainPageTotalAmountRequestModel.mainPageTotalAmount;
+import static Models.RequestModel.API.PostMainPageTotalAmountRequestModel.mainPageTotalAmount;
 
 
 public class GetMainPageTotalAmount {

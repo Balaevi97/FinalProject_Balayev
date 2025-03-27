@@ -2,7 +2,7 @@ package Calls;
 
 import io.restassured.response.Response;
 
-import static Steps.FrontSteps.LogInSteps.token;
+import static Models.RequestModel.Web.LogInRequestModel.*;
 import static Utils.APIRequestSpec.*;
 import static Utils.URL.myCredo_API;
 import static io.restassured.RestAssured.given;

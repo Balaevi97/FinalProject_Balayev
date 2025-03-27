@@ -1,20 +1,17 @@
 package Utils;
 
-import Models.RequestModel.GetUserLoginListRequestModel;
+import Models.RequestModel.API.GetUserLoginListRequestModel;
 import io.qameta.allure.Step;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Random;
-
+import static Models.RequestModel.Web.LogInRequestModel.*;
 import static DataController.DataController.getUserLoginList;
 
 
 public class UserTaker {
 
-    public static String personId;
-    public static String username;
-    public static String password;
     @Step
     public static void generateRandomUser () throws SQLException {
         List<GetUserLoginListRequestModel> users = getUserLoginList();

@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.*;
+import static Models.RequestModel.Web.MoneyTransferRequestModel.*;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byXpath;
@@ -19,25 +20,9 @@ import static com.codeborne.selenide.Selectors.byXpath;
 
 public class MoneyTransferSteps extends MoneyTransfer {
 
-    public String accountType = "შემნახველი";
-
-    public static int maxAmountPage ;
-    public static String transferCardAmountSymbol;
-    public static Double transferCardAmountAmount;
-
-
-    public static String receiverAccountForTransfer;
-    public BigDecimal receiverAccountPreviousAmountWeb;
-    public BigDecimal receiverAccountAfterAmountWeb =  BigDecimal.ZERO;
-
     public BigDecimal accountBalancePreviousAPI = BigDecimal.ZERO;
     public BigDecimal accountBalanceAfterAPI = BigDecimal.ZERO;
-    public BigDecimal calculatedAmountForAssertAPI = BigDecimal.ZERO;
 
-
-    public static Double percentage = 15.0;
-    public static Double totalPercentage = 100.0;
-    public BigDecimal amountForPayment = BigDecimal.ZERO;
 
 
     GetCardDetailSteps getCardDetailSteps = new GetCardDetailSteps();
@@ -265,16 +250,6 @@ public class MoneyTransferSteps extends MoneyTransfer {
         return this;
     }
 
-    public MoneyTransferSteps clickUserMenu () {
-        userMenu.shouldBe(clickable, Duration.ofSeconds(5)).click();
-        return this;
-    }
-
-    public MoneyTransferSteps logOutFromMyCredo () {
-        logoUt.click();
-        return this;
-    }
-
 
     public BigDecimal getCalculatedAmountForAssertAPI () {
         return calculatedAmountForAssertAPI = accountBalanceAfterAPI.subtract(amountForPayment);
@@ -323,35 +298,76 @@ public class MoneyTransferSteps extends MoneyTransfer {
     }
 
     public BigDecimal getChangedAmount() {
+
+        try {
+            if (loadPage.first().is(exist, Duration.ofSeconds(3))) {
+                openProdList();
+                selectedAccount.filter(Condition.text(receiverAccountForTransfer)).first().click();
+            }
+            return new BigDecimal(changedAmount.first().shouldBe(visible, Duration.ofSeconds(5))
+                    .shouldHave(Condition.partialText("₾"))
+                    .getText()
+                    .replaceAll("[^0-9.]", ""));
+
+        } catch (Exception e) {
+            System.out.println("Error in getChangedAmount(): " + e.getMessage());
+            return BigDecimal.ZERO;
+        }
+
+    }
+
+    public BigDecimal checkIfAmountChanged () {
+
         while (true) {
-            try {
-                if (loadPage.first().is(exist, Duration.ofSeconds(3))) {
-                    openProdList();
-                    selectedAccount.filter(Condition.text(receiverAccountForTransfer)).first().click();
+
+            if (Objects.equals(receiverAccountPreviousAmountWeb, getChangedAmount())) {
+                products.click();
+
+                for (SelenideElement product : loadPage) {
+                    if (product.shouldBe(clickable, Duration.ofSeconds(5)).isDisplayed()) {
+                        checkProdList.click();
+                        break;
+                    }
                 }
 
-                BigDecimal currentAmount = new BigDecimal(changedAmount.first().shouldBe(visible, Duration.ofSeconds(5))
-                        .shouldHave(Condition.partialText("₾"))
-                        .getText()
-                        .replaceAll("[^0-9.]", ""));
+                try {
+                    if (selectedAccount.filter(Condition.text(receiverAccountForTransfer)).first().is(exist, Duration.ofSeconds(5))) {
+                        selectedAccount.filter(Condition.text(receiverAccountForTransfer)).first().click();
+                    } else {
+                        openProdList();
+                        selectedAccount.filter(Condition.text(receiverAccountForTransfer)).first().click();
+                    }
 
-                // Check if current amount is different from previous amount
-                if (currentAmount.compareTo(receiverAccountPreviousAmountWeb) != 0) {
-                    return currentAmount;
+                } catch (Exception e) {
+                    System.out.println("Error in getRenewalAccountAmount(): " + e.getMessage());
                 }
 
-            } catch (Exception e) {
-                System.out.println("Error in getChangedAmount(): " + e.getMessage());
-                // Continue retrying in case of temporary error
+
+                try {
+                    if (loadPage.first().is(exist, Duration.ofSeconds(3))) {
+                        openProdList();
+                        selectedAccount.filter(Condition.text(receiverAccountForTransfer)).first().click();
+                    }
+                    return new BigDecimal(changedAmount.first().shouldBe(visible, Duration.ofSeconds(5))
+                            .shouldHave(Condition.partialText("₾"))
+                            .getText()
+                            .replaceAll("[^0-9.]", ""));
+
+                } catch (Exception e) {
+                    System.out.println("Error in getChangedAmount(): " + e.getMessage());
+
+                }
+            } else {
+
+                break;
             }
         }
+        return BigDecimal.ZERO;
+
     }
 
 
     public void assertAccountBalanceWeb () {
-        System.out.println("მდე: " + receiverAccountPreviousAmountWeb);
-        System.out.println("გადასარიცხი თანხა: " + amountForPayment);
-        System.out.println("შემდეგ: " + getChangedAmount());
         Assert.assertEquals(receiverAccountAfterAmountWeb, getChangedAmount());
     }
 }

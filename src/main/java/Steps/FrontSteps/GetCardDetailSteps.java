@@ -17,13 +17,14 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static Models.RequestModel.Web.GetCardDetailRequestModel.accountType1;
 import static Steps.APISteps.GetAccountList.accountType;
 import static com.codeborne.selenide.Condition.*;
 
 
 public class GetCardDetailSteps extends GetCardDetail {
 
-    public static String accountType1 = "Instant Visa Credit Card Digital";
+
 
 
     @Step

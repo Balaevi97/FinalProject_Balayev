@@ -1,4 +1,4 @@
-package Models.RequestModel;
+package Models.RequestModel.API;
 
 public class PostPersonAccountListRequestModel {
 
