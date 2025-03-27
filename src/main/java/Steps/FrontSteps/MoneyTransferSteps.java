@@ -17,8 +17,9 @@ import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byXpath;
 
 
-
 public class MoneyTransferSteps extends MoneyTransfer {
+
+    public String accountType = "შემნახველი";
 
     public static int maxAmountPage ;
     public static String transferCardAmountSymbol;
@@ -46,6 +47,8 @@ public class MoneyTransferSteps extends MoneyTransfer {
     public MoneyTransferSteps moveToFirstPage () {
         for (int i = getCardDetailSteps.getTotalPagesCount(); i >= 1 ; i--) {
             getCardDetailSteps.previous();
+
+
         }
         return this;
     }
@@ -70,10 +73,15 @@ public class MoneyTransferSteps extends MoneyTransfer {
                     }
 
                     try {
-                        String totalAmount = String.valueOf(Double.parseDouble(currency.getTotalAmount().replaceAll("[^a-zA-Z0-9.]","")));
-                        double amountInDouble = Double.parseDouble(totalAmount);
-                        if (transferCardAmountAmount == null || amountInDouble > transferCardAmountAmount) {
-                            transferCardAmountAmount = amountInDouble;
+
+                        double totalAmount = currency.getAmountsByCurrency().stream()
+                                .findFirst().map(amount -> {
+                                    String cleanedAmount = amount.replaceAll("[^0-9,.]", "");
+                                    return Double.parseDouble(cleanedAmount.replace(",", ""));
+                                }).orElse(0.0);
+
+                        if (transferCardAmountAmount == null || totalAmount > transferCardAmountAmount) {
+                            transferCardAmountAmount = totalAmount;
                             maxAmountPage = i;
                         }
                     } catch (NumberFormatException e) {
@@ -109,10 +117,6 @@ public class MoneyTransferSteps extends MoneyTransfer {
         ownAccount.shouldBe(clickable, Duration.ofSeconds(10)).click();
         return this;
     }
-    @Step
-    public String getSelectedCardNumber () {
-        return selectedCardNumber.getText();
-    }
 
     @Step
     public Double getTransferCardAmount() {
@@ -123,18 +127,24 @@ public class MoneyTransferSteps extends MoneyTransfer {
     public String getTransferCardCurrency() {
         return transferCardAmountSymbol = selectedCardSymbol.getText().replaceAll("[0-9.,\\s]", "");
     }
+
     @Step
     public MoneyTransferSteps openReceiverAccountList () {
         transferTo.shouldBe(clickable, Duration.ofSeconds(10)).click();
         return this;
     }
+
     @Step
     public List<String> getCard_AccountList() {
         return card_AccountList.texts();
     }
 
-    public List<String> getCard_AccountListName() {
+    @Step
+    public String getSelectedCardNumber () {
+        return selectedCardNumber.getText();
+    }
 
+    public List<String> getCard_AccountListName() {
         return accountAndCardNames.texts();
     }
 
@@ -148,7 +158,7 @@ public class MoneyTransferSteps extends MoneyTransfer {
             String account = accountList.get(i);
             String cardName = cardNames.get(i);
 
-            if (!account.equals(selectedCard) && !cardName.trim().equals("შემნახველი")) {
+            if (!account.equals(selectedCard) && !cardName.trim().equals(accountType)) {
                 receiverAccountForTransfer = account;
                 card_AccountList.get(i).click();
                 break;
@@ -156,6 +166,48 @@ public class MoneyTransferSteps extends MoneyTransfer {
         }
         return this;
     }
+
+    @Step
+    public BigDecimal getAccountBalanceAPI(String accountNumber, String currency, boolean isFirstCapture) {
+
+        while (true) {
+            List<Map.Entry<String, List<PostPersonAccountListResponseModel>>> filteredAccountList = accountStep.getAccountList();
+
+            if (filteredAccountList == null || filteredAccountList.isEmpty()) {
+                System.out.println("Error: Account list is empty or null");
+                return null;
+            }
+
+            Map<String, String> currencyMap = new HashMap<>();
+            currencyMap.put("₾", "GEL");
+            currencyMap.put("$", "USD");
+            currencyMap.put("€", "EUR");
+
+            String convertCurrencySymbol = currencyMap.get(currency);
+
+            for (Map.Entry<String, List<PostPersonAccountListResponseModel>> entry : filteredAccountList) {
+                if (entry.getKey().equals(accountNumber)) {
+                    for (PostPersonAccountListResponseModel account : entry.getValue()) {
+                        if (account.getCurrency().equals(convertCurrencySymbol)) {
+                            BigDecimal currentBalance = new BigDecimal(account.getAvailableBalance());
+                            if (this.accountBalancePreviousAPI != null &&
+                                    currentBalance.compareTo(this.accountBalancePreviousAPI) == 0) {
+                                continue;
+                            }
+
+                            if (isFirstCapture) {
+                                this.accountBalancePreviousAPI = currentBalance;
+                            } else {
+                                this.accountBalanceAfterAPI = currentBalance;
+                            }
+                            return currentBalance;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     @Step
     public BigDecimal getReceiverAccountAmount () {
@@ -171,6 +223,14 @@ public class MoneyTransferSteps extends MoneyTransfer {
     }
 
     @Step
+    public BigDecimal calculateTransferAmount() {
+        double rawAmount = (percentage / totalPercentage) * transferCardAmountAmount;
+        amountForPayment = new BigDecimal(rawAmount).setScale(2, RoundingMode.HALF_UP);
+        return amountForPayment;
+
+    }
+
+    @Step
     public void chooseCurrency() {
 
         SelenideElement currencyToSelect = selectedAccount.filter(Condition.text(receiverAccountForTransfer))
@@ -182,18 +242,9 @@ public class MoneyTransferSteps extends MoneyTransfer {
 
     }
 
-    @Step
-    public BigDecimal calculateTransferAmount() {
-        double rawAmount = (percentage / totalPercentage) * transferCardAmountAmount;
-        amountForPayment = new BigDecimal(rawAmount).setScale(2, RoundingMode.HALF_UP);
-        return amountForPayment;
-
-    }
-
     public BigDecimal getCalculatedAmountForAssertWeb () {
         return receiverAccountAfterAmountWeb = receiverAccountPreviousAmountWeb.add(amountForPayment);
     }
-
 
     @Step
     public MoneyTransferSteps setTransferAmount () {
@@ -214,46 +265,16 @@ public class MoneyTransferSteps extends MoneyTransfer {
         return this;
     }
 
-
-    @Step
-    public BigDecimal getAccountBalanceAPI(String accountNumber, String currency, boolean isFirstCapture) {
-
-        List<Map.Entry<String, List<PostPersonAccountListResponseModel>>> filteredAccountList = accountStep.getAccountList();
-
-        if (filteredAccountList == null || filteredAccountList.isEmpty()) {
-            System.out.println("Error: Account list is empty or null");
-            return null;
-        }
-
-        Map<String, String> currencyMap = new HashMap<>();
-        currencyMap.put("₾", "GEL");
-        currencyMap.put("$", "USD");
-        currencyMap.put("€", "EUR");
-
-        String convertCurrencySymbol = currencyMap.get(currency);
-
-        for (Map.Entry<String, List<PostPersonAccountListResponseModel>> entry : filteredAccountList) {
-
-            if (entry.getKey().equals(accountNumber)) {
-                for (PostPersonAccountListResponseModel account : entry.getValue()) {
-
-                    if (account.getCurrency().equals(convertCurrencySymbol)) {
-                        BigDecimal currentBalance = new BigDecimal(account.getAvailableBalance());
-
-                        if (isFirstCapture) {
-                            this.accountBalancePreviousAPI = currentBalance;
-                        } else {
-                            this.accountBalanceAfterAPI = currentBalance;
-                        }
-                        return accountBalancePreviousAPI;
-                    }
-                }
-
-            }
-        }
-
-        return null;
+    public MoneyTransferSteps clickUserMenu () {
+        userMenu.shouldBe(clickable, Duration.ofSeconds(5)).click();
+        return this;
     }
+
+    public MoneyTransferSteps logOutFromMyCredo () {
+        logoUt.click();
+        return this;
+    }
+
 
     public BigDecimal getCalculatedAmountForAssertAPI () {
         return calculatedAmountForAssertAPI = accountBalanceAfterAPI.subtract(amountForPayment);
@@ -262,10 +283,6 @@ public class MoneyTransferSteps extends MoneyTransfer {
 
     @Step
     public MoneyTransferSteps assertAccountBalanceAPI () {
-        System.out.println("მდე: " + accountBalancePreviousAPI);
-        System.out.println("ნამატი: " +amountForPayment);
-        System.out.println("შემდეგ: " + calculatedAmountForAssertAPI);
-        System.out.println("ანგარიში: " + receiverAccountForTransfer);
         Assert.assertEquals(accountBalancePreviousAPI , calculatedAmountForAssertAPI ,"Amounts does not match");
         return this;
     }
@@ -306,27 +323,35 @@ public class MoneyTransferSteps extends MoneyTransfer {
     }
 
     public BigDecimal getChangedAmount() {
+        while (true) {
+            try {
+                if (loadPage.first().is(exist, Duration.ofSeconds(3))) {
+                    openProdList();
+                    selectedAccount.filter(Condition.text(receiverAccountForTransfer)).first().click();
+                }
 
-        try {
-            if (loadPage.first().is(exist, Duration.ofSeconds(3))) {
-                openProdList();
-                selectedAccount.filter(Condition.text(receiverAccountForTransfer)).first().click();
+                BigDecimal currentAmount = new BigDecimal(changedAmount.first().shouldBe(visible, Duration.ofSeconds(5))
+                        .shouldHave(Condition.partialText("₾"))
+                        .getText()
+                        .replaceAll("[^0-9.]", ""));
+
+                // Check if current amount is different from previous amount
+                if (currentAmount.compareTo(receiverAccountPreviousAmountWeb) != 0) {
+                    return currentAmount;
+                }
+
+            } catch (Exception e) {
+                System.out.println("Error in getChangedAmount(): " + e.getMessage());
+                // Continue retrying in case of temporary error
             }
-            BigDecimal a =   new BigDecimal(changedAmount.first().shouldBe(visible, Duration.ofSeconds(5))
-                    .shouldHave(Condition.partialText("₾"))
-                    .getText()
-                    .replaceAll("[^0-9.]", ""));
-            System.out.println(a);
-            return a;
-        } catch (Exception e) {
-            System.out.println("Error in getChangedAmount(): " + e.getMessage());
-            return BigDecimal.ZERO;
         }
-
     }
 
 
     public void assertAccountBalanceWeb () {
+        System.out.println("მდე: " + receiverAccountPreviousAmountWeb);
+        System.out.println("გადასარიცხი თანხა: " + amountForPayment);
+        System.out.println("შემდეგ: " + getChangedAmount());
         Assert.assertEquals(receiverAccountAfterAmountWeb, getChangedAmount());
     }
 }

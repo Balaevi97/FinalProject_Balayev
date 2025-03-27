@@ -28,16 +28,16 @@ public class TestRunner {
     public void LoginTest () throws SQLException {
         generateRandomUser ();
         openPage(myCredo);
-        logInSteps.setUsername("Ttestik")
-                .setPassword("Credo@1234")
-                .clickSubmit()
-                .setOTP(OTPCode)
-                .clickApprove()
-                .removeEasyAuthWindow()
-                .removeContinueProcessWindow()
-                .getBearerToken ()
-                .myMoney()
-                .assertLogin();
+        logInSteps.setUsername(username)
+                    .setPassword(password)
+                    .clickSubmit()
+                    .setOTP(OTPCode)
+                    .clickApprove()
+                    .removeEasyAuthWindow()
+                    .removeContinueProcessWindow()
+                    .getBearerToken ()
+                    .myMoney()
+                    .assertLogin();
     }
 
 
@@ -46,13 +46,12 @@ public class TestRunner {
         moveToCardSteps.clickProducts()
                 .openProdList()
                 .moveToProduct()
-                //.assertNotOnSamePage()
                 .assertIsOnRightPage();
     }
 
     @Test (priority = 3)
     public void getCardInfo () {
-        getCardDetailSteps.operationOnCard(OTPCode);
+        getCardDetailSteps.cardOperation(OTPCode);
         getCardDetailSteps.checkFileExistence();
         getCardDetailSteps.deleteRequisiteFile ()
                             .assertDeleteRequisiteFileMethod ();
@@ -70,20 +69,20 @@ public class TestRunner {
         moneyTransfer.goToMaxAmountPage()
                     .moveToTransfer ()
                     .transferToOwnAccount ()
-                    .getTransferCardCurrency();
-        moneyTransfer.getTransferCardAmount();
+                    .getTransferCardAmount();
+        moneyTransfer.getTransferCardCurrency();
         moneyTransfer.openReceiverAccountList ()
                     .choseAccount();
         moneyTransfer.getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol, true);
         moneyTransfer.getReceiverAccountAmount();
         moneyTransfer.calculateTransferAmount();
-
-        moneyTransfer.getCalculatedAmountForAssertWeb ();
         moneyTransfer.chooseCurrency();
+        moneyTransfer.getCalculatedAmountForAssertWeb ();
         moneyTransfer.setTransferAmount ()
                     .approvePayment ()
-                    .closeMessageWindow ()
-                    .getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol, false);
+                    .closeMessageWindow ();
+
+        moneyTransfer.getAccountBalanceAPI(receiverAccountForTransfer, transferCardAmountSymbol, false);
         moneyTransfer.getCalculatedAmountForAssertAPI ();
         moneyTransfer.assertAccountBalanceAPI ()
                     .clickProducts ()

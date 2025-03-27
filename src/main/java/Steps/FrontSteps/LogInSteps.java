@@ -82,6 +82,7 @@ public class LogInSteps extends LogIn {
 
         return this;
     }
+
     @Step
     public LogInSteps myMoney () {
         Map<Character, String> currencyMap = new HashMap<>();
@@ -97,6 +98,7 @@ public class LogInSteps extends LogIn {
         myMoneyCurrency = currencyMap.get(currencySymbol);
          return this;
     }
+
     @Step
     public void assertLogin () {
         Assert.assertEquals(myMoney, getTotalAmount());

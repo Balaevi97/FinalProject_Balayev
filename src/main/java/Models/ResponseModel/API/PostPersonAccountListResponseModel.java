@@ -14,7 +14,6 @@ public class PostPersonAccountListResponseModel {
     public String currency;
     public String category;
     public String availableBalance;
-    public String currencyPriority;
     public String availableBalanceEqu;
 
 }

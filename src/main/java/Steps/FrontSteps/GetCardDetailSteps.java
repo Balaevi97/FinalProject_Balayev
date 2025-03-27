@@ -25,6 +25,144 @@ public class GetCardDetailSteps extends GetCardDetail {
 
     public static String accountType1 = "Instant Visa Credit Card Digital";
 
+
+    @Step
+    public GetCardDetailSteps cardUnblockStep () {
+        cardUnblock.click();
+        return this;
+    }
+
+    @Step
+    public void cardUnblockApproveStep () {
+        cardUnblockApprove.click();
+    }
+
+    @Step
+    public GetCardDetailSteps pinResetStep () {
+        pinReset.click();
+        return this;
+    }
+
+    @Step
+    public GetCardDetailSteps closePinResetStep () {
+        closePinReset.click();
+        return this;
+    }
+
+    @Step
+    public GetCardDetailSteps pinResetApproveStep () {
+        pinResetApprove.click();
+        return this;
+    }
+
+    @Step
+    public GetCardDetailSteps setOTP (String otp) {
+        OTP.shouldBe(clickable, Duration.ofSeconds(5)).click();
+        OTP.setValue(otp);
+        return this;
+    }
+
+    @Step
+    public void clickApprove () {
+        approve.shouldBe(clickable, Duration.ofSeconds(15)).click();
+    }
+
+    @Step
+    public String getResetPinMessage () {
+        return resetPinMessage.shouldBe(visible, Duration.ofSeconds(10)).getText();
+    }
+
+    @Step
+    public GetCardDetailSteps cardBlockStep () {
+        cardBlock.click();
+        return this;
+    }
+
+    @Step
+    public GetCardDetailSteps closeWindowByButtonStep () {
+        closeWindowByButton.click();
+        return this;
+    }
+
+    @Step
+    public GetCardDetailSteps closeWindowByXStep () {
+        closeWindowByX.click();
+        return this;
+    }
+
+    @Step
+    public void cardBlockApproveStep () {
+        cardBlockApprove.click();
+    }
+
+    @Step
+    public boolean blockedCardAssert () {
+        Assert.assertTrue(cardUnblock.shouldBe(visible, Duration.ofSeconds(15)).isDisplayed());
+        return true;
+    }
+
+    @Step
+    public Boolean cardBlockButtonAssert () {
+        Assert.assertTrue(cardBlock.shouldBe(visible, Duration.ofSeconds(15)).isDisplayed());
+        return true;
+    }
+
+    @Step
+    public void previous () {
+        previousProduct.click();
+    }
+
+    @Step
+    public void next () {
+        nextProduct.click();
+    }
+
+    @Step
+    public void cardOperation (String otp) {
+        try {
+            for (int i = 1; i <= getTotalPagesCount() ; i++) {
+                if (pinReset.isDisplayed() || cardUnblock.isDisplayed()) {
+
+                    if (cardUnblock.isDisplayed()) {
+                        cardUnblockStep()
+                                .cardUnblockApproveStep();
+                    } else {
+                        pinResetStep()
+                                .closePinResetStep()
+                                .pinResetStep()
+                                .closeWindowByXStep()
+                                .pinResetStep()
+                                .pinResetApproveStep()
+                                .setOTP(otp)
+                                .clickApprove();
+
+                        Assert.assertEquals(getResetPinMessage(), "ახალი პინ კოდი sms-ით გამოგიგზავნეთ");
+
+                        cardBlockStep()
+                                .closeWindowByButtonStep()
+                                .cardBlockStep()
+                                .closeWindowByXStep()
+                                .cardBlockStep()
+                                .cardBlockApproveStep();
+
+                        Assert.assertTrue(blockedCardAssert());
+
+                        cardUnblockStep()
+                                .cardUnblockApproveStep();
+
+                        Assert.assertTrue(cardBlockButtonAssert());
+                    }
+
+                    break;
+                } else {
+                    next();
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     @Step
     public boolean checkFileExistence() {
         int timeout = 10000;
@@ -73,6 +211,14 @@ public class GetCardDetailSteps extends GetCardDetail {
     public boolean assertDownloadRequisiteMethod () {
         Assert.assertTrue(checkFileExistence());
         return true;
+    }
+
+    @Step
+    public GetCardDetailSteps moveToFirstPage () {
+        for (int i = getTotalPagesCount(); i >= 1 ; i--) {
+            previous();
+        }
+        return this;
     }
 
     @Step
@@ -129,19 +275,7 @@ public class GetCardDetailSteps extends GetCardDetail {
         return Integer.parseInt(parts[1]);
     }
 
-    @Step
-    public void next () {
-        nextProduct.click();
-    }
-
-    @Step
-    public void previous () {
-        previousProduct.click();
-    }
-
      @Step
-
-
     public TreeMap<String, GetAccountsAndCardModel> collectCardInfo() {
         List<GetAccountsAndCardModel> allCardsInfo = new ArrayList<>();
         String previousAccountNumber = null;
@@ -180,143 +314,6 @@ public class GetCardDetailSteps extends GetCardDetail {
         }
 
         return accountMap;
-    }
-
-
-    @Step
-    public Boolean cardBlockButtonAssert () {
-        Assert.assertTrue(cardBlock.shouldBe(visible, Duration.ofSeconds(15)).isDisplayed());
-        return true;
-    }
-
-    @Step
-    public GetCardDetailSteps cardBlockStep () {
-        cardBlock.click();
-        return this;
-    }
-
-    @Step
-    public GetCardDetailSteps closeWindowByButtonStep () {
-        closeWindowByButton.click();
-        return this;
-    }
-
-    @Step
-    public GetCardDetailSteps closeWindowByXStep () {
-        closeWindowByX.click();
-        return this;
-    }
-
-    @Step
-    public void cardBlockApproveStep () {
-        cardBlockApprove.click();
-    }
-
-    @Step
-    public boolean blockedCardAssert () {
-        Assert.assertTrue(cardUnblock.shouldBe(visible, Duration.ofSeconds(15)).isDisplayed());
-        return true;
-    }
-
-    @Step
-    public GetCardDetailSteps cardUnblockStep () {
-        cardUnblock.click();
-        return this;
-    }
-
-    @Step
-    public void cardUnblockApproveStep () {
-        cardUnblockApprove.click();
-    }
-
-
-    @Step
-    public GetCardDetailSteps pinResetStep () {
-        pinReset.click();
-        return this;
-    }
-
-    @Step
-    public GetCardDetailSteps closePinResetStep () {
-        closePinReset.click();
-        return this;
-    }
-
-    @Step
-    public GetCardDetailSteps pinResetApproveStep () {
-        pinResetApprove.click();
-        return this;
-    }
-
-    @Step
-    public GetCardDetailSteps setOTP (String otp) {
-        OTP.shouldBe(clickable, Duration.ofSeconds(5)).click();
-        OTP.setValue(otp);
-        return this;
-    }
-
-    @Step
-    public void clickApprove () {
-        approve.shouldBe(clickable, Duration.ofSeconds(15)).click();
-    }
-
-    @Step
-    public String getResetPinMessage () {
-        return resetPinMessage.shouldBe(visible, Duration.ofSeconds(10)).getText();
-    }
-
-    @Step
-    public void operationOnCard (String otp) {
-        try {
-            for (int i = 1; i <= getTotalPagesCount() ; i++) {
-                if (pinReset.isDisplayed() || cardUnblock.isDisplayed()) {
-
-                    if (cardUnblock.isDisplayed()) {
-                                cardUnblockStep()
-                                .cardUnblockApproveStep();
-                    } else {
-                        pinResetStep()
-                                .closePinResetStep()
-                                .pinResetStep()
-                                .closeWindowByXStep()
-                                .pinResetStep()
-                                .pinResetApproveStep()
-                                .setOTP(otp)
-                                .clickApprove();
-
-                        Assert.assertEquals(getResetPinMessage(), "ახალი პინ კოდი sms-ით გამოგიგზავნეთ");
-
-                        cardBlockStep()
-                                .closeWindowByButtonStep()
-                                .cardBlockStep()
-                                .closeWindowByXStep()
-                                .cardBlockStep()
-                                .cardBlockApproveStep();
-
-                        Assert.assertTrue(blockedCardAssert());
-
-                                cardUnblockStep()
-                                .cardUnblockApproveStep();
-
-                        Assert.assertTrue(cardBlockButtonAssert());
-                    }
-
-                    break;
-                } else {
-                    next();
-                }
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    @Step
-    public GetCardDetailSteps moveToFirstPage () {
-        for (int i = getTotalPagesCount(); i >= 1 ; i--) {
-            previous();
-        }
-        return this;
     }
 
     @Step

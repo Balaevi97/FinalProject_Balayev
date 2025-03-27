@@ -24,38 +24,44 @@ public class MoveToCardSteps extends MoveToCard {
         for (SelenideElement product : loadPage) {
             if (product.shouldBe(Condition.clickable, clickable, Condition.interactable).isDisplayed()) {
                 loadPage.first().click();
-                break;
             }
         }
         return this;
     }
+
+//        @Step
+//    public MoveToCardSteps moveToProduct() {
+//            moveToProduct.first().shouldBe(clickable, Duration.ofSeconds(3)).click();
+//        return this;
+//        }
+//assertIsOnRightPage
     @Step
+
     public MoveToCardSteps moveToProduct() {
+        if (moveToProduct.first().is(clickable, Duration.ofSeconds(2))) {
+            moveToProduct.first().click();
+        }
 
-        try {
-            if (moveToProduct.first().is(clickable, Duration.ofSeconds(3))) {
-                moveToProduct.first().click();
-            } else {
-                openProdList ();
-                moveToProduct.first().click();
+            while (true) {
+                if (loadPage.first().is(exist, Duration.ofSeconds(3))) {
+                    loadPage.first().click();
+
+                    moveToProduct.first()
+                            .shouldBe(Condition.clickable, Duration.ofSeconds(5))
+                            .click();
+                }
+                if (!loadPage.first().is(exist, Duration.ofSeconds(2))) {
+                    break;
+                }
+                System.out.println("Page reloaded back to loadPage, retrying...");
             }
-        } catch (Exception e) {
-           System.out.println(e.getMessage());
-      }
+
         return this;
     }
 
-
-    @Step
-    public boolean assertIsOnRightPage () {
-        if (loadPage.first().is(exist, Duration.ofSeconds(3))) {
-            loadPage.first().click();
-            moveToProduct.first().click();
-        } else {
-            Assert.assertTrue(assertPage.shouldBe(Condition.visible, Duration.ofSeconds(5)).getText().contains("ანგარიშის დეტალები"));
-        }
+    public boolean assertIsOnRightPage() {
+        Assert.assertTrue(assertPage.getText().contains("ანგარიშის დეტალები"));
         return true;
     }
-
 
 }
