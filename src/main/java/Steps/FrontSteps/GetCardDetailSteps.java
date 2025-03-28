@@ -188,7 +188,7 @@ public class GetCardDetailSteps extends GetCardDetail {
             assert invoiceFiles != null;
             for (File file : invoiceFiles) {
                 boolean deleted = file.delete();
-                System.out.println(deleted);
+                System.out.println("File deleted: " + deleted);
             }
         }
         return this;
