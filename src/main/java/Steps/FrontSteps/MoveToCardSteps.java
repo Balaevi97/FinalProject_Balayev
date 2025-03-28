@@ -55,9 +55,8 @@ public class MoveToCardSteps extends MoveToCard {
     }
 
     @Step
-    public boolean assertIsOnRightPage() {
+    public void assertIsOnRightPage() {
         Assert.assertTrue(assertPage.getText().contains("ანგარიშის დეტალები"));
-        return true;
     }
 
 }

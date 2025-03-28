@@ -134,7 +134,7 @@ public class MoneyTransferSteps extends MoneyTransfer {
     }
 
     @Step
-    public MoneyTransferSteps choseAccount() {
+    public void choseAccount() {
         List<String> accountList = getCard_AccountList();
         String selectedCard = getSelectedCardNumber();
         List<String> cardNames = getCard_AccountListName();
@@ -149,7 +149,6 @@ public class MoneyTransferSteps extends MoneyTransfer {
                 break;
             }
         }
-        return this;
     }
 
     @Step
@@ -242,12 +241,11 @@ public class MoneyTransferSteps extends MoneyTransfer {
         return this;
     }
     @Step
-    public MoneyTransferSteps closeMessageWindow () {
+    public void closeMessageWindow () {
         if (transferMessage.shouldBe(visible, Duration.ofSeconds(15)).isDisplayed()) {
             transferMessage.click();
             closeMessageWin.click();
         }
-        return this;
     }
 
 

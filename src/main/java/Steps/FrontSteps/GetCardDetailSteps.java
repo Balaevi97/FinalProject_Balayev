@@ -211,11 +211,10 @@ public class GetCardDetailSteps extends GetCardDetail {
     }
 
     @Step
-    public GetCardDetailSteps moveToFirstPage () {
+    public void moveToFirstPage () {
         for (int i = getTotalPagesCount(); i >= 1 ; i--) {
             previous();
         }
-        return this;
     }
 
     @Step
