@@ -44,7 +44,6 @@ public class SelenIDESetUp {
         options.setExperimentalOption("prefs", chromePrefs);
         options.addArguments("--start-maximized");
         options.addArguments("--disable-notifications");
-    //    options.addArguments("--incognito");
         options.addArguments("--ignore-certificate-errors");
         options.addArguments("--allow-insecure-localhost");
         options.addArguments("--accept-insecure-certs");

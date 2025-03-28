@@ -14,7 +14,6 @@ public class MoneyTransfer {
     public SelenideElement selectedCardSymbol = $(byXpath("//div/p[@class='paragraph-12 balance']"));
     public SelenideElement transferTo = $(byXpath("//div[@class='advanced-accounts-select']"));
 
-
     public ElementsCollection card_AccountList = $$(byXpath("//div[@class='account-selection-wrapper']/div//p[@class='paragraph-12' and contains(text(),'GE')]"));
     public ElementsCollection accountAndCardNames = $$(byXpath("//div/parent::div/p[@class='paragraph-12']"));
     public ElementsCollection selectedAccount = $$(byXpath("//div[@class='wrapper']/p[@class='paragraph-12' and contains(text(),'')]"));
@@ -22,11 +21,6 @@ public class MoneyTransfer {
     public SelenideElement choseCard_Account = $(byXpath("//input[@name='amount']"));
     public SelenideElement payment = $(byXpath("//button[@class='primary next']"));
     public SelenideElement closeMessageWin = $(byXpath("//div[@class='header']//div [@class='icon close-black grey-010 pointer']"));
-
-    public SelenideElement userMenu = $(byXpath("//div[@class='user-menu-header']"));
-    public SelenideElement logoUt = $(byXpath("//li[@class='logout']"));
-
-
 
     public SelenideElement products = $(byXpath("//p [text()='პროდუქტები']"));
     public ElementsCollection loadPage = $$(byXpath("//div[@class='header trigger']/p[contains(@class,'block-header-caps-20')]"));

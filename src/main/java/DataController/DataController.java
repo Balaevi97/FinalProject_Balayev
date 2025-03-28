@@ -65,7 +65,6 @@ public class DataController {
         return getPersonRequestModels;
     }
 
-
     public static List<GetUserLoginListRequestModel> getUserLoginList() throws SQLException {
 
         List<GetUserLoginListRequestModel> getUserLoginList = userLoginList(DataController.getUserList);
@@ -84,6 +83,5 @@ public class DataController {
         }
         return getUserLoginList;
     }
-
 
 }
