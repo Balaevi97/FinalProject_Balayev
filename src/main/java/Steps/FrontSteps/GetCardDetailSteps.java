@@ -17,14 +17,12 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static Models.RequestModel.Web.GetCardDetailRequestModel.accountType1;
+import static Models.RequestModel.Web.GetCardDetailRequestModel.*;
 import static Steps.APISteps.GetAccountList.accountType;
 import static com.codeborne.selenide.Condition.*;
 
 
 public class GetCardDetailSteps extends GetCardDetail {
-
-
 
 
     @Step
@@ -277,7 +275,7 @@ public class GetCardDetailSteps extends GetCardDetail {
      @Step
     public TreeMap<String, GetAccountsAndCardModel> collectCardInfo() {
         List<GetAccountsAndCardModel> allCardsInfo = new ArrayList<>();
-        String previousAccountNumber = null;
+      //  String previousAccountNumber;
 
         for (int i = 1; i <= getTotalPagesCount(); i++) {
             getCurrentPage();
@@ -285,11 +283,6 @@ public class GetCardDetailSteps extends GetCardDetail {
 
             for (Map.Entry<String, List<GetAccountsAndCardModel>> entry : allCardsGrouped) {
                 String currentAccountNumber = entry.getKey();
-
-//                if (previousAccountNumber != null) {
-//                    Assert.assertNotEquals(previousAccountNumber, currentAccountNumber,
-//                            "Account number did not change after next()");
-//                }
 
                 List<GetAccountsAndCardModel> cards = entry.getValue();
 
@@ -299,7 +292,6 @@ public class GetCardDetailSteps extends GetCardDetail {
                     }
                     allCardsInfo.add(currency);
                 }
-
                 previousAccountNumber = currentAccountNumber;
             }
 

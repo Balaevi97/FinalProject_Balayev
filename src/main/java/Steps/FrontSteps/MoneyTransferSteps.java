@@ -323,49 +323,16 @@ public class MoneyTransferSteps extends MoneyTransfer {
             if (Objects.equals(receiverAccountPreviousAmountWeb, getChangedAmount())) {
                 products.click();
 
-                for (SelenideElement product : loadPage) {
-                    if (product.shouldBe(clickable, Duration.ofSeconds(5)).isDisplayed()) {
-                        checkProdList.click();
-                        break;
-                    }
-                }
-
-                try {
-                    if (selectedAccount.filter(Condition.text(receiverAccountForTransfer)).first().is(exist, Duration.ofSeconds(5))) {
-                        selectedAccount.filter(Condition.text(receiverAccountForTransfer)).first().click();
-                    } else {
-                        openProdList();
-                        selectedAccount.filter(Condition.text(receiverAccountForTransfer)).first().click();
-                    }
-
-                } catch (Exception e) {
-                    System.out.println("Error in getRenewalAccountAmount(): " + e.getMessage());
-                }
-
-
-                try {
-                    if (loadPage.first().is(exist, Duration.ofSeconds(3))) {
-                        openProdList();
-                        selectedAccount.filter(Condition.text(receiverAccountForTransfer)).first().click();
-                    }
-                    return new BigDecimal(changedAmount.first().shouldBe(visible, Duration.ofSeconds(5))
-                            .shouldHave(Condition.partialText("₾"))
-                            .getText()
-                            .replaceAll("[^0-9.]", ""));
-
-                } catch (Exception e) {
-                    System.out.println("Error in getChangedAmount(): " + e.getMessage());
-
-                }
+                openProdList()
+                        .getRenewalAccountAmount()
+                        .getChangedAmount();
             } else {
-
                 break;
             }
         }
+
         return BigDecimal.ZERO;
-
     }
-
 
     public MoneyTransferSteps assertAccountBalanceWeb () {
         Assert.assertEquals(receiverAccountAfterAmountWeb, getChangedAmount());
@@ -374,14 +341,14 @@ public class MoneyTransferSteps extends MoneyTransfer {
 
     public void  anyQuestions () {
         String[] anyQuestions = {
+
                 "     █████╗ ███╗   ██╗██╗   ██╗     ██████╗ ██╗   ██╗███████╗███████╗████████╗██╗ ██████╗ ███╗   ██╗███████╗   ███████╗  ",
                 "    ██╔══██╗████╗  ██║██║   ██║    ██╔═══██╗██║   ██║██╔════╝██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝        ██╔  ",
                 "    ███████║██╔██╗ ██║██║   ██║    ██║   ██║██║   ██║█████╗  ███████╗   ██║   ██║██║   ██║██╔██╗ ██║███████╗   ████ ██╔  ",
                 "    ██╔══██║██║╚██╗██║╚██████╔╝    ██║▄▄ ██║██║   ██║██╔══╝  ╚════██║   ██║   ██║██║   ██║██║╚██╗██║╚════██║   ██╔       ",
                 "    ██║  ██║██║ ╚████║ ╚═██══╝     ╚██████╔╝╚██████╔╝███████╗███████║   ██║   ██║╚██████╔╝██║ ╚████║███████║             ",
                 "    ╚═╝  ╚═╝╚═╝  ╚═══╝   ██║        ╚══▀▀═╝  ╚═════╝ ╚══════╝╚══════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝   ██╔       ",
-                "                                                                                                                         ",
-                "                                                                                                                         "
+
         };
 
         for (String line : anyQuestions) {
